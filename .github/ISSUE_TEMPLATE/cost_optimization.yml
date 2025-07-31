@@ -1,0 +1,22 @@
+name: Cost Optimization
+description: Identify cost saving opportunities
+labels: ["cost-optimization", "infrastructure"]
+body:
+  - type: textarea
+    id: current-cost
+    attributes:
+      label: Current Cost Analysis
+      description: What's currently expensive?
+      placeholder: "GitHub Actions using $X/month on Y"
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: How can we reduce costs?
+
+  - type: input
+    id: expected-savings
+    attributes:
+      label: Expected Savings
+      placeholder: "50% reduction ($X/month)"

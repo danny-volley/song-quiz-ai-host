@@ -1,0 +1,259 @@
+name: Newcomer Standard Issue
+description: Template for creating issues that follow the Newcomer Standard (1-3 hours max)
+title: "[PROJECT-PHASE] Type: "
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚨 MANDATORY READING BEFORE STARTING ANY WORK
+        
+        **You MUST read [`rules/CRITICAL_CORE.mdc`](/rules/CRITICAL_CORE.mdc) before starting ANY development work.**
+        
+        This file contains universal development principles including:
+        - GitHub workflow protocol (issue assignment, branch naming, PR creation)
+        - Conflict prevention rules 
+        - Build validation requirements
+        - Single-pass implementation mandate
+        - Issue hygiene protocols
+        
+        **Failure to follow CRITICAL_CORE principles will result in PR rejection.**
+
+  - type: markdown
+    attributes:
+      value: |
+        ## 📝 Title Construction Helper
+        Your issue title will be built from the selections below.
+        Format: `[PROJECT-PHASE] Type: Your description`
+
+  - type: dropdown
+    id: project
+    attributes:
+      label: Project Component
+      description: Which part of the system does this affect?
+      options:
+        - MIND (Main iOS App)
+        - WIDGET (iOS Widget)
+        - WATCH (Apple Watch App)
+        - DOCS (Documentation)
+        - TOOLS (Development Tools)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Development Phase
+      description: What aspect of development does this involve?
+      options:
+        - FE (Frontend/UI)
+        - BE (Backend/API)
+        - DB (Database)
+        - ML (Machine Learning)
+        - SEC (Security)
+        - PERF (Performance)
+        - A11Y (Accessibility)
+        - INFRA (Infrastructure)
+        - PROD (Production)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Issue Type
+      description: What kind of change is this?
+      options:
+        - Feature
+        - Enhancement
+        - Bug
+        - Refactor
+        - Test
+        - UI
+        - UX
+        - API
+        - Deploy
+        - DevOps
+        - Docs
+        - Research
+    validations:
+      required: true
+
+  - type: input
+    id: brief-description
+    attributes:
+      label: Brief Description (for title)
+      description: Complete your title (5-10 words max)
+      placeholder: "Add user profile settings screen"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: effort
+    attributes:
+      label: Estimated Effort
+      description: How long will this take? (Newcomer Standard = max 3 hours)
+      options:
+        - effort:1h (1 hour)
+        - effort:2h (2 hours)
+        - effort:3h (3 hours)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How urgent is this issue?
+      options:
+        - priority:high (Blocking other work)
+        - priority:medium (Important but not blocking)
+        - priority:low (Nice to have)
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context for Newcomers
+      description: 2-3 sentences explaining what this feature area is and why we're doing this task. Assume the reader has never seen this codebase before.
+      placeholder: "The Settings screen is where users configure app preferences like theme, notifications, and account settings. This task adds a new user profile section where users can update their display name and avatar image. This is part of the larger user personalization feature set."
+    validations:
+      required: true
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Files to Create/Modify
+      description: List specific files that need to be created or modified
+      value: |
+        ### New Files to Create:
+        - `path/to/new/file1.swift` - [Brief description of what this file does]
+        - `path/to/new/file2.swift` - [Brief description of what this file does]
+
+        ### Files to Modify:
+        - `path/to/existing/file.swift` - [What specific changes needed]
+        - `path/to/another/file.swift` - [What specific changes needed]
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Specific measurable outcomes (use checkboxes)
+      value: |
+        - [ ] Specific measurable outcome 1
+        - [ ] Specific measurable outcome 2
+        - [ ] Build passes without warnings (quick_build_check.sh < 30s)
+        - [ ] Tests added/updated and passing
+        - [ ] Theme compliance maintained (100% via detect_violations.py)
+        - [ ] Voice interface compatibility verified (if UI-related)
+        - [ ] No merge conflicts with other subtasks
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation-guide
+    attributes:
+      label: Implementation Guide
+      description: Step-by-step implementation approach
+      placeholder: |
+        ### Step 1: [Specific first task]
+        [Clear instructions with context]
+
+        ```swift
+        // Example code showing the pattern to follow
+        struct ExampleView: View {
+            var body: some View {
+                Text("Hello")
+                    .foregroundColor(Theme.colors.primary) // Use theme colors
+            }
+        }
+        ```
+
+        ### Step 2: [Specific second task]
+        [Clear instructions with examples]
+
+        ### Step 3: [Specific third task]
+        [Clear instructions]
+    validations:
+      required: true
+
+  - type: textarea
+    id: testing
+    attributes:
+      label: Testing Instructions
+      description: How to test this feature manually and with automated tests
+      placeholder: |
+        1. **Manual Testing**:
+           - How to test this feature manually
+           - Specific user flows to verify
+           - Edge cases to check
+
+        2. **Automated Tests**:
+           ```swift
+           // Example test to add
+           func testFeatureWorks() {
+               // Test implementation
+           }
+           ```
+
+        3. **Validation**:
+           - How to know it's working correctly
+           - Expected behavior description
+
+  - type: checkboxes
+    id: voice-first
+    attributes:
+      label: Voice-First Considerations
+      description: Check applicable items for UI-related changes
+      options:
+        - label: This feature needs voice input support
+        - label: Text alternatives are provided for voice interactions
+        - label: UI is optimized for voice-first usage patterns
+        - label: Feature has been tested with VoiceOver enabled
+        - label: Not applicable (non-UI change)
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies & Related Issues
+      description: List blocking dependencies and related work
+      placeholder: |
+        **Depends On**: #123 (must be completed first)
+        **Related To**: #456 (connected work)
+        **Blocks**: #789 (this blocks other work)
+
+  - type: checkboxes
+    id: pre-work-checklist
+    attributes:
+      label: Pre-Work Checklist (MANDATORY)
+      description: You must complete these before starting work
+      options:
+        - label: I have read [`rules/CRITICAL_CORE.mdc`](/rules/CRITICAL_CORE.mdc) completely
+          required: true
+        - label: I have checked dependencies are complete (checked "Depends On" issues)
+          required: true
+        - label: I have verified no one else is assigned to related issues
+          required: true
+        - label: I understand the single-pass implementation mandate (get it right the first time)
+          required: true
+        - label: I will assign myself to this issue BEFORE creating any branches
+          required: true
+        - label: I will work ONLY on files listed above (scope discipline)
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚡ Workflow Reminder
+        
+        **After issue creation:**
+        1. `gh issue edit <issue-number> --add-assignee @me`
+        2. `git checkout -b feature/issue-<number>-<brief-description>`
+        3. Work on ONLY the files listed above
+        4. `git commit -m 'type: description (#issue-number)'`
+        5. Create PR with "Fixes #<issue-number>" in body
+        
+        **Success looks like**: [One sentence describing what done looks like for this issue]

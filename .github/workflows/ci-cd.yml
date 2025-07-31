@@ -1,0 +1,196 @@
+name: CI/CD Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to test (all/ios/python)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - ios
+          - python
+      run_performance:
+        description: 'Run performance tests'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+env:
+  PYTHON_VERSION: '3.11'
+  XCODE_VERSION: '16.1'
+  IOS_SIMULATOR: 'iPhone 16 Pro'
+
+jobs:
+  ci-cd:
+    name: CI/CD Pipeline
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: python
+            os: ubuntu-latest
+          - platform: ios
+            os: macos-14
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Python CI Steps
+      - name: Python - Setup
+        if: matrix.platform == 'python' && (inputs.platform == 'all' || inputs.platform == 'python')
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Python - Cache
+        if: matrix.platform == 'python' && (inputs.platform == 'all' || inputs.platform == 'python')
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+
+      - name: Python - Install Dependencies
+        if: matrix.platform == 'python' && (inputs.platform == 'all' || inputs.platform == 'python')
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m spacy download en_core_web_sm
+
+      - name: Python - Lint & Type Check
+        if: matrix.platform == 'python' && (inputs.platform == 'all' || inputs.platform == 'python')
+        run: |
+          python -m flake8 src/ tests/ --config=.flake8
+          python -m mypy src/ --config-file=mypy.ini
+
+      - name: Python - Run Tests
+        if: matrix.platform == 'python' && (inputs.platform == 'all' || inputs.platform == 'python')
+        run: |
+          PYTHONPATH=src python -m pytest tests/ -v --tb=short
+          TEST_COUNT=$(PYTHONPATH=src python -m pytest tests/ --collect-only -q | grep -c "<Function\|<Method")
+          echo "Total tests: $TEST_COUNT"
+          if [ $TEST_COUNT -lt 199 ]; then
+            echo "❌ Test count ($TEST_COUNT) below expected (199)"
+            exit 1
+          fi
+
+      - name: Python - Performance Tests
+        if: matrix.platform == 'python' && inputs.run_performance
+        run: |
+          pip install pytest-benchmark
+          if [ -d "tests/performance" ]; then
+            PYTHONPATH=src python -m pytest tests/performance/ \
+              --benchmark-json=backend_benchmark.json \
+              --benchmark-min-rounds=5 || echo "⚠️ Performance tests failed"
+          fi
+          
+          # API response time check
+          cd src
+          uvicorn mindly_analyzer.main:app --host 0.0.0.0 --port 8000 &
+          BACKEND_PID=$!
+          sleep 10
+          
+          HEALTH_TIME=$(curl -w "%{time_total}" -s -o /dev/null http://localhost:8000/health)
+          echo "Health endpoint: ${HEALTH_TIME}s"
+          
+          kill $BACKEND_PID
+
+      # iOS CI Steps  
+      - name: iOS - Setup Xcode
+        if: matrix.platform == 'ios' && (inputs.platform == 'all' || inputs.platform == 'ios')
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: iOS - Install SwiftLint
+        if: matrix.platform == 'ios' && (inputs.platform == 'all' || inputs.platform == 'ios')
+        run: brew install swiftlint
+
+      - name: iOS - Lint
+        if: matrix.platform == 'ios' && (inputs.platform == 'all' || inputs.platform == 'ios')
+        run: |
+          cd iOS/Mindly
+          swiftlint lint --reporter github-actions-logging
+
+      - name: iOS - Cache
+        if: matrix.platform == 'ios' && (inputs.platform == 'all' || inputs.platform == 'ios')
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+
+      - name: iOS - Build & Test
+        if: matrix.platform == 'ios' && (inputs.platform == 'all' || inputs.platform == 'ios')
+        run: |
+          cd iOS/Mindly
+          xcodebuild clean build-for-testing \
+            -project Mindly.xcodeproj \
+            -scheme Mindly \
+            -destination "platform=iOS Simulator,name=${{ env.IOS_SIMULATOR }}" \
+            -derivedDataPath build/ \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO
+            
+          xcodebuild test-without-building \
+            -project Mindly.xcodeproj \
+            -scheme Mindly \
+            -destination "platform=iOS Simulator,name=${{ env.IOS_SIMULATOR }}" \
+            -derivedDataPath build/ \
+            -resultBundlePath TestResults.xcresult
+
+      - name: iOS - Build Time Check
+        if: matrix.platform == 'ios' && (inputs.platform == 'all' || inputs.platform == 'ios')
+        run: |
+          cd iOS/Mindly
+          chmod +x quick_build_check.sh
+          ./quick_build_check.sh
+          BUILD_TIME=$(cat build_time.txt)
+          echo "### ⏱️ Build Time: ${BUILD_TIME}s" >> $GITHUB_STEP_SUMMARY
+          if [ "$BUILD_TIME" -gt "30" ]; then
+            echo "❌ Build time exceeds 30s target!" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+      - name: iOS - Performance Tests
+        if: matrix.platform == 'ios' && inputs.run_performance
+        run: |
+          cd iOS/Mindly
+          if xcodebuild -list -project Mindly.xcodeproj | grep -q "MindlyPerformanceTests"; then
+            xcodebuild test \
+              -project Mindly.xcodeproj \
+              -scheme MindlyPerformanceTests \
+              -destination "platform=iOS Simulator,name=${{ env.IOS_SIMULATOR }}" \
+              -resultBundlePath PerformanceTestResults.xcresult || echo "⚠️ Performance tests failed"
+          fi
+
+      # Security Scan (runs on ubuntu for both platforms)
+      - name: Security Scan
+        if: matrix.platform == 'python'
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'Mindly'
+          path: '.'
+          format: 'HTML'
+          out: 'reports'
+
+      - name: Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}-results-${{ github.run_number }}
+          path: |
+            iOS/Mindly/TestResults.xcresult
+            iOS/Mindly/build_time.txt
+            backend_benchmark.json
+            reports/

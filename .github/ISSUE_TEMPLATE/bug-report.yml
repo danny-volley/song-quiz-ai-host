@@ -1,0 +1,198 @@
+name: Bug Report
+description: Report a bug or issue in the application
+title: "[PROJECT-PHASE] Bug: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚨 MANDATORY READING BEFORE STARTING ANY WORK
+        
+        **You MUST read [`rules/CRITICAL_CORE.mdc`](/rules/CRITICAL_CORE.mdc) before starting ANY development work.**
+        
+        This ensures you follow proper GitHub workflow, prevent conflicts, and implement fixes correctly.
+
+  - type: markdown
+    attributes:
+      value: |
+        ## 📝 Title Construction Helper
+        Format: `[PROJECT-PHASE] Bug: Your description`
+
+  - type: dropdown
+    id: project
+    attributes:
+      label: Project Component
+      description: Which part of the system has the bug?
+      options:
+        - MIND (Main iOS App)
+        - WIDGET (iOS Widget)
+        - WATCH (Apple Watch App)
+        - DOCS (Documentation)
+        - TOOLS (Development Tools)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Development Phase
+      description: What aspect is affected?
+      options:
+        - FE (Frontend/UI)
+        - BE (Backend/API)
+        - DB (Database)
+        - ML (Machine Learning)
+        - SEC (Security)
+        - PERF (Performance)
+        - A11Y (Accessibility)
+        - INFRA (Infrastructure)
+        - PROD (Production)
+    validations:
+      required: true
+
+  - type: input
+    id: brief-description
+    attributes:
+      label: Brief Description (for title)
+      description: Short description of the bug (5-10 words)
+      placeholder: "Voice recording fails on iOS 18"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Bug Severity
+      description: How severe is this bug?
+      options:
+        - Critical (App crashes, major functionality broken)
+        - High (Important feature not working)
+        - Medium (Minor feature issue, workaround exists)
+        - Low (Cosmetic issue, doesn't affect functionality)
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: Clear description of what's wrong
+      placeholder: |
+        **What happens**: Voice recording starts but immediately stops with an error
+        **Expected behavior**: Voice recording should continue until user stops it
+        **Impact**: Users cannot capture voice notes, core app functionality broken
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to Reproduce
+      description: Exact steps to reproduce the bug
+      placeholder: |
+        1. Open the app
+        2. Tap the voice recording button
+        3. Grant microphone permissions if prompted
+        4. Observe that recording stops immediately
+        5. Error message appears: "Recording failed"
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Device and software information
+      placeholder: |
+        - **Device**: iPhone 15 Pro
+        - **iOS Version**: 18.0
+        - **App Version**: 1.2.3
+        - **Xcode Version**: 15.4 (if relevant)
+        - **First seen**: Date when bug was first noticed
+    validations:
+      required: true
+
+  - type: textarea
+    id: error-logs
+    attributes:
+      label: Error Logs / Console Output
+      description: Any error messages or console output
+      placeholder: |
+        ```
+        Paste any error messages, console logs, or stack traces here
+        ```
+
+  - type: textarea
+    id: files-affected
+    attributes:
+      label: Files Likely Affected
+      description: Based on the bug, which files probably need investigation/fixes?
+      placeholder: |
+        **Files to investigate**:
+        - `iOS/Mindly/Features/Voice/VoiceInputService.swift` - Voice recording logic
+        - `iOS/Mindly/Core/Services/VoiceServiceManager.swift` - Voice service coordination
+        
+        **Files to potentially modify**:
+        - [List files that likely need changes]
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-fix
+    attributes:
+      label: Proposed Fix (if known)
+      description: If you have ideas about how to fix this, share them
+      placeholder: |
+        **Root cause hypothesis**: 
+        - Possible permission issue with iOS 18
+        - Audio session configuration problem
+        
+        **Potential solutions**:
+        - Update audio session category
+        - Add proper iOS 18 permission handling
+        - Review microphone access code
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Fix Acceptance Criteria
+      description: How to know the bug is fixed (use checkboxes)
+      value: |
+        - [ ] Bug no longer reproduces on affected devices
+        - [ ] Voice recording works correctly in all scenarios
+        - [ ] No new bugs introduced by the fix
+        - [ ] Fix tested on multiple iOS versions
+        - [ ] Build passes without warnings (quick_build_check.sh < 30s)
+        - [ ] Tests added to prevent regression
+        - [ ] Error handling improved if applicable
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: pre-work-checklist
+    attributes:
+      label: Pre-Work Checklist (MANDATORY)
+      description: Complete these before starting work
+      options:
+        - label: I have read [`rules/CRITICAL_CORE.mdc`](/rules/CRITICAL_CORE.mdc) completely
+          required: true
+        - label: I have checked for duplicate bug reports
+          required: true
+        - label: I have verified this bug exists on latest version
+          required: true
+        - label: I can reproduce this bug consistently
+          required: true
+        - label: I will assign myself before creating branches
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚡ Fix Workflow
+        
+        1. **Assign yourself**: `gh issue edit <issue-number> --add-assignee @me`
+        2. **Create branch**: `git checkout -b fix/issue-<number>-<brief-description>`
+        3. **Debug and fix** the root cause
+        4. **Test thoroughly** on affected devices
+        5. **Commit**: `fix: description (#issue-number)`
+        6. **Create PR** with "Fixes #<issue-number>"

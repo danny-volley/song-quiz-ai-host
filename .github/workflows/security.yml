@@ -1,0 +1,174 @@
+name: Security Scanning
+
+on:
+  workflow_dispatch:
+    inputs:
+      scan_type:
+        description: 'Type of security scan'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - dependencies
+          - secrets
+          - vulnerabilities
+
+permissions:
+  contents: read
+  security-events: write
+  issues: write
+
+jobs:
+  security-scan:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Dependency Security Check
+        if: inputs.scan_type == 'all' || inputs.scan_type == 'dependencies'
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'Mindly'
+          path: '.'
+          format: 'ALL'
+          out: 'dependency-check-report'
+          args: >
+            --enableRetired
+            --enableExperimental
+
+      - name: Python Dependencies Audit
+        if: inputs.scan_type == 'all' || inputs.scan_type == 'dependencies'
+        run: |
+          pip install pip-audit
+          pip-audit --desc --fix --dry-run > python-audit.txt || true
+          
+          if grep -q "found vulnerabilities" python-audit.txt; then
+            echo "⚠️ Python vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+            cat python-audit.txt >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No Python vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Secret Scanning
+        if: inputs.scan_type == 'all' || inputs.scan_type == 'secrets'
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --only-verified
+
+      - name: SAST Security Scan
+        if: inputs.scan_type == 'all' || inputs.scan_type == 'vulnerabilities'
+        uses: securego/gosec@master
+        with:
+          args: '-fmt sarif -out gosec-results.sarif ./...'
+        continue-on-error: true
+
+      - name: iOS Security Analysis
+        if: inputs.scan_type == 'all' || inputs.scan_type == 'vulnerabilities'
+        run: |
+          echo "## 🔒 iOS Security Check" >> $GITHUB_STEP_SUMMARY
+          
+          # Check for hardcoded secrets in iOS code
+          echo "### Checking for hardcoded secrets..." >> $GITHUB_STEP_SUMMARY
+          SECRETS_FOUND=0
+          
+          # Common patterns to check
+          patterns=(
+            "apiKey.*=.*[\"'][^\"']+[\"']"
+            "password.*=.*[\"'][^\"']+[\"']"
+            "secret.*=.*[\"'][^\"']+[\"']"
+            "token.*=.*[\"'][^\"']+[\"']"
+          )
+          
+          for pattern in "${patterns[@]}"; do
+            if grep -r -i "$pattern" iOS/ --include="*.swift" --include="*.m" 2>/dev/null; then
+              SECRETS_FOUND=$((SECRETS_FOUND + 1))
+            fi
+          done
+          
+          if [ $SECRETS_FOUND -eq 0 ]; then
+            echo "✅ No hardcoded secrets found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Potential hardcoded secrets found: $SECRETS_FOUND" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for insecure storage
+          echo "### Checking for insecure storage..." >> $GITHUB_STEP_SUMMARY
+          if grep -r "UserDefaults.*password\|UserDefaults.*token\|UserDefaults.*secret" iOS/ --include="*.swift" 2>/dev/null; then
+            echo "⚠️ Sensitive data may be stored in UserDefaults" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No sensitive data in UserDefaults" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Generate Security Report
+        if: always()
+        run: |
+          echo "# 🔐 Security Scan Summary" > security-report.md
+          echo "**Date**: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> security-report.md
+          echo "" >> security-report.md
+          
+          # Dependency vulnerabilities
+          if [ -f dependency-check-report/dependency-check-report.html ]; then
+            echo "## Dependency Vulnerabilities" >> security-report.md
+            # Extract summary from HTML report
+            grep -o "Total:.*" dependency-check-report/dependency-check-report.html | head -1 >> security-report.md || echo "See detailed report" >> security-report.md
+          fi
+          
+          # Python vulnerabilities
+          if [ -f python-audit.txt ]; then
+            echo "## Python Dependencies" >> security-report.md
+            if grep -q "found vulnerabilities" python-audit.txt; then
+              echo "⚠️ Vulnerabilities found - see detailed report" >> security-report.md
+            else
+              echo "✅ No vulnerabilities found" >> security-report.md
+            fi
+          fi
+          
+          cat security-report.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Security Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports-${{ github.run_number }}
+          path: |
+            dependency-check-report/
+            python-audit.txt
+            gosec-results.sarif
+            security-report.md
+
+      - name: Create Security Issue if Critical
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '[SECURITY] Critical vulnerabilities detected',
+              body: `## 🚨 Security Alert
+              
+              Critical security vulnerabilities were detected in the automated security scan.
+              
+              **Date**: ${new Date().toISOString()}
+              **Workflow Run**: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}
+              
+              ### Required Actions
+              - [ ] Review security scan results
+              - [ ] Patch critical vulnerabilities
+              - [ ] Update dependencies
+              - [ ] Re-run security scan
+              
+              See the [workflow artifacts](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for detailed reports.`,
+              labels: ['security', 'blocker', 'automated']
+            });
+            
+            console.log('Created security issue:', issue.data.number);

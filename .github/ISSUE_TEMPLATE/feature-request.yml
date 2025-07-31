@@ -1,0 +1,171 @@
+name: Feature Request
+description: Request a new feature (1-2 days max). Large features should use Parent Issue template.
+title: "[PROJECT-PHASE] Feature: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚨 MANDATORY READING BEFORE STARTING ANY WORK
+        
+        **You MUST read [`rules/CRITICAL_CORE.mdc`](/rules/CRITICAL_CORE.mdc) before starting ANY development work.**
+        
+        This file contains universal development principles that prevent:
+        - Merge conflicts between developers
+        - Duplicate work and wasted effort
+        - Build failures and quality issues
+        - Project workflow violations
+        
+        **Failure to follow CRITICAL_CORE principles will result in PR rejection.**
+
+  - type: markdown
+    attributes:
+      value: |
+        ## 📝 Title Helper
+        Your issue title will be auto-constructed from the selections below.
+        Format: `[PROJECT-PHASE] Feature: Your description`
+
+  - type: dropdown
+    id: project
+    attributes:
+      label: Project Component
+      description: Which part of the system does this feature affect?
+      options:
+        - MIND (Main iOS App)
+        - WIDGET (iOS Widget)
+        - WATCH (Apple Watch App)
+        - DOCS (Documentation)
+        - TOOLS (Development Tools)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Development Phase
+      description: What aspect of development does this involve?
+      options:
+        - FE (Frontend/UI)
+        - BE (Backend/API)
+        - DB (Database)
+        - ML (Machine Learning)
+        - SEC (Security)
+        - PERF (Performance)
+        - A11Y (Accessibility)
+        - INFRA (Infrastructure)
+        - PROD (Production)
+    validations:
+      required: true
+
+  - type: input
+    id: brief-description
+    attributes:
+      label: Brief Description (for title)
+      description: Complete your title (5-10 words max)
+      placeholder: "Add dark mode toggle to settings"
+    validations:
+      required: true
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: |
+        **What**: Clear description of the feature
+        **Why**: The user problem this solves
+        **Who**: Which users will benefit
+      placeholder: |
+        **What**: Add a dark mode toggle in the app settings that allows users to switch between light and dark themes.
+        **Why**: Users want to reduce eye strain and have a better experience in low-light conditions.
+        **Who**: All app users, especially those who use the app frequently in different lighting conditions.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context for Newcomers
+      description: 1-2 sentences explaining where this fits in the app for someone unfamiliar with the codebase
+      placeholder: "This feature will be added to the Settings screen in the main iOS app, utilizing the existing Theme system to switch between light and dark color schemes."
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Technical Implementation
+      description: |
+        **Files to modify**: List specific files that need changes
+        **New files to create**: Any new files needed
+        **Technical approach**: Brief technical plan
+      placeholder: |
+        **Files to modify**:
+        - `iOS/Mindly/Features/Settings/SettingsView.swift` - Add theme toggle UI
+        - `iOS/Mindly/Core/Theme/ThemeManager.swift` - Add theme switching logic
+        
+        **New files to create**:
+        - `iOS/Mindly/Features/Settings/Components/ThemeToggle.swift` - Toggle component
+        
+        **Technical approach**:
+        - Use existing Theme.colors system
+        - Persist selection in UserDefaults
+        - Update UI immediately when changed
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Specific, measurable outcomes (use checkboxes)
+      value: |
+        - [ ] Dark mode toggle appears in Settings screen
+        - [ ] Toggle switches between light and dark themes immediately
+        - [ ] Theme preference persists between app launches
+        - [ ] All UI elements respect the selected theme
+        - [ ] Build passes without warnings (quick_build_check.sh < 30s)
+        - [ ] Tests added/updated and passing
+        - [ ] Theme compliance maintained (100% via detect_violations.py)
+        - [ ] Voice interface compatibility verified (if UI-related)
+    validations:
+      required: true
+
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of Scope
+      description: What this feature request does NOT include
+      placeholder: |
+        - Automatic theme switching based on system settings (future enhancement)
+        - Custom color picker (separate feature)
+        - Widget theme updates (separate issue)
+
+  - type: checkboxes
+    id: pre-work-checklist
+    attributes:
+      label: Pre-Work Checklist (MANDATORY)
+      description: You must complete these before starting work
+      options:
+        - label: I have read [`rules/CRITICAL_CORE.mdc`](/rules/CRITICAL_CORE.mdc) completely
+          required: true
+        - label: I have checked for duplicate issues using `gh issue list --state open`
+          required: true
+        - label: I have verified no one else is assigned to related issues
+          required: true
+        - label: I understand this is a 1-2 day maximum effort (larger features need Parent Issue template)
+          required: true
+        - label: I will assign myself to this issue BEFORE creating any branches
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚡ Next Steps After Issue Creation
+        
+        1. **Assign yourself**: `gh issue edit <issue-number> --add-assignee @me`
+        2. **Create branch**: `git checkout -b feature/issue-<number>-<brief-description>`
+        3. **Work on ONLY the files listed above**
+        4. **Follow commit format**: `feat: description (#issue-number)`
+        5. **Create PR**: Include "Fixes #<issue-number>" in PR body
+        
+        **Remember**: Read CRITICAL_CORE.mdc for complete workflow details!
