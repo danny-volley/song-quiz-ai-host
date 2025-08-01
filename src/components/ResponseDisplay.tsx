@@ -109,6 +109,13 @@ export default function ResponseDisplay({ response, isGenerating, onClear }: Res
             <span>{response.response.metadata.wordCount} words</span>
             <span>{response.response.metadata.estimatedSpeechDuration}s speech</span>
             <span>{response.response.metadata.processingTime}ms generated</span>
+            <span className={`px-2 py-1 rounded text-xs font-medium ${
+              response.id.startsWith('ai_') 
+                ? 'bg-green-100 text-green-800' 
+                : 'bg-gray-100 text-gray-800'
+            }`}>
+              {response.id.startsWith('ai_') ? '🤖 AI' : '📋 Template'}
+            </span>
           </div>
           <div className={`px-2 py-1 rounded-full text-xs font-medium ${getPersonalityColor(response.response.personality.tone)}`}>
             {response.response.personality.tone}

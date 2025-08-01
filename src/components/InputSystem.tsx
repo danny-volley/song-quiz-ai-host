@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import type { ProductType, SandboxState, GeneratedResponse } from '../types'
 import { useVoiceRecording } from '../hooks/useVoiceRecording'
 import { responseGenerator } from '../services/responseGenerator'
+import { aiResponseGenerator } from '../services/aiResponseGenerator'
 
 interface InputSystemProps {
   selectedProduct: ProductType | null
@@ -93,6 +94,7 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
   const [inputMode, setInputMode] = useState<InputMode>('text')
   const [showExamples, setShowExamples] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [useAI, setUseAI] = useState(aiResponseGenerator.isReady())
   
   const {
     isRecording,
@@ -138,7 +140,8 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
     onGeneratingChange?.(true)
     
     try {
-      const response = await responseGenerator.generateResponse(
+      const generator = useAI ? aiResponseGenerator : responseGenerator
+      const response = await generator.generateResponse(
         inputText,
         inputMode,
         sandboxState
@@ -150,7 +153,8 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
       onInputChange('')
     } catch (error) {
       console.error('Failed to generate response:', error)
-      alert('Failed to generate response. Please try again.')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to generate response. Please try again.'
+      alert(errorMessage)
     } finally {
       setIsGenerating(false)
       onGeneratingChange?.(false)
@@ -169,30 +173,89 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
           </p>
         </div>
         
-        {/* Input Mode Toggle */}
-        <div className="flex bg-gray-100 rounded-lg p-1">
-          <button
-            onClick={() => setInputMode('text')}
-            className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
-              inputMode === 'text'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            📝 Text
-          </button>
-          <button
-            onClick={() => setInputMode('voice')}
-            className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
-              inputMode === 'voice'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            🎤 Voice
-          </button>
+        <div className="flex items-center gap-4">
+          {/* AI/Template Toggle */}
+          <div className="flex bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setUseAI(false)}
+              className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
+                !useAI
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              📋 Templates
+            </button>
+            <button
+              onClick={() => setUseAI(true)}
+              disabled={!aiResponseGenerator.isReady()}
+              className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
+                useAI && aiResponseGenerator.isReady()
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : aiResponseGenerator.isReady()
+                    ? 'text-gray-600 hover:text-gray-900'
+                    : 'text-gray-400 cursor-not-allowed'
+              }`}
+              title={!aiResponseGenerator.isReady() ? 'AI responses require OpenAI API key configuration' : ''}
+            >
+              🤖 AI
+            </button>
+          </div>
+
+          {/* Input Mode Toggle */}
+          <div className="flex bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setInputMode('text')}
+              className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
+                inputMode === 'text'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              📝 Text
+            </button>
+            <button
+              onClick={() => setInputMode('voice')}
+              className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
+                inputMode === 'voice'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              🎤 Voice
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* AI Configuration Info */}
+      {useAI && !aiResponseGenerator.isReady() && (
+        <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+          <div className="flex items-center gap-2">
+            <span className="text-yellow-600">⚠️</span>
+            <span className="font-medium text-yellow-900">AI Configuration Required</span>
+          </div>
+          <div className="text-sm text-yellow-800 mt-1">
+            <p>{aiResponseGenerator.getConfigurationHelp()}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Current Mode Indicator */}
+      {(useAI && aiResponseGenerator.isReady()) && (
+        <div className="p-2 bg-green-50 rounded-lg border border-green-200">
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-green-600">🤖</span>
+              <span className="font-medium text-green-900">AI Mode Active</span>
+              <span className="text-green-700">- Using {aiResponseGenerator.getCurrentModel()}</span>
+            </div>
+            <div className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+              Change model in .env file
+            </div>
+          </div>
+        </div>
+      )}
 
       {inputMode === 'text' ? (
         <div className="space-y-3">

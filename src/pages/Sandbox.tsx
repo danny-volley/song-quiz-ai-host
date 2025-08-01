@@ -6,6 +6,7 @@ import PersonalitySliders from '../components/PersonalitySliders'
 import InputSystem from '../components/InputSystem'
 import ResponseDisplay from '../components/ResponseDisplay'
 import { useSandboxState } from '../hooks/useSandboxState'
+import { aiResponseGenerator } from '../services/aiResponseGenerator'
 import { useState } from 'react'
 
 export default function Sandbox() {
@@ -29,9 +30,21 @@ export default function Sandbox() {
   return (
     <div className="space-y-8">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          Welcome to Riley's Sandbox
-        </h2>
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <h2 className="text-2xl font-bold text-gray-900">
+            Welcome to Riley's Sandbox
+          </h2>
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">
+              PROTOTYPE
+            </span>
+            {aiResponseGenerator.isReady() && (
+              <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded flex items-center gap-1">
+                🤖 {aiResponseGenerator.getCurrentModel()}
+              </span>
+            )}
+          </div>
+        </div>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
           Test and explore Riley's AI host personality across different games and scenarios. 
           Configure the settings below to see how Riley responds to different contexts.
