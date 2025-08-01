@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { ProductType, ResponseLength, SandboxState, FlowStepSettings, GameMode, Player, PersonalitySettings } from '../types'
+import { ProductType, ResponseLength, SandboxState, FlowStepSettings, GameMode, Player, PersonalitySettings, GeneratedResponse } from '../types'
 import { products } from '../data/products'
 
 const initialState: SandboxState = {
@@ -99,6 +99,13 @@ export function useSandboxState() {
     }))
   }, [])
 
+  const updateLastResponse = useCallback((response: GeneratedResponse | undefined) => {
+    setState(prev => ({
+      ...prev,
+      lastResponse: response
+    }))
+  }, [])
+
   const resetState = useCallback(() => {
     setState(initialState)
   }, [])
@@ -121,6 +128,7 @@ export function useSandboxState() {
     updatePersonalitySettings,
     updatePlayers,
     updateInputText,
+    updateLastResponse,
     resetState,
     isValid
   }

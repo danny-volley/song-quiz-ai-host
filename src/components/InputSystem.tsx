@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react'
-import type { ProductType } from '../types'
+import type { ProductType, SandboxState, GeneratedResponse } from '../types'
 import { useVoiceRecording } from '../hooks/useVoiceRecording'
+import { responseGenerator } from '../services/responseGenerator'
 
 interface InputSystemProps {
   selectedProduct: ProductType | null
   inputText: string
   onInputChange: (text: string) => void
+  sandboxState: SandboxState
+  onResponseGenerated: (response: GeneratedResponse) => void
+  onGeneratingChange?: (isGenerating: boolean) => void
 }
 
 interface ExampleScenario {
@@ -85,9 +89,10 @@ const exampleScenarios: Record<ProductType, ExampleScenario[]> = {
 
 type InputMode = 'text' | 'voice'
 
-export default function InputSystem({ selectedProduct, inputText, onInputChange }: InputSystemProps) {
+export default function InputSystem({ selectedProduct, inputText, onInputChange, sandboxState, onResponseGenerated, onGeneratingChange }: InputSystemProps) {
   const [inputMode, setInputMode] = useState<InputMode>('text')
   const [showExamples, setShowExamples] = useState(false)
+  const [isGenerating, setIsGenerating] = useState(false)
   
   const {
     isRecording,
@@ -126,18 +131,30 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange 
     onInputChange('')
   }
 
-  const handleSubmit = () => {
-    if (!inputText.trim()) return
+  const handleSubmit = async () => {
+    if (!inputText.trim() || !selectedProduct || isGenerating) return
     
-    // TODO: This will be connected to the Response Generation Engine in Issue #10
-    console.log('Submitting input:', {
-      text: inputText,
-      mode: inputMode,
-      product: selectedProduct
-    })
+    setIsGenerating(true)
+    onGeneratingChange?.(true)
     
-    // For now, show a placeholder response
-    alert(`Input submitted! Riley would respond to: "${inputText.substring(0, 50)}${inputText.length > 50 ? '...' : ''}"\n\nResponse generation coming in Issue #10.`)
+    try {
+      const response = await responseGenerator.generateResponse(
+        inputText,
+        inputMode,
+        sandboxState
+      )
+      
+      onResponseGenerated(response)
+      
+      // Clear input after successful generation
+      onInputChange('')
+    } catch (error) {
+      console.error('Failed to generate response:', error)
+      alert('Failed to generate response. Please try again.')
+    } finally {
+      setIsGenerating(false)
+      onGeneratingChange?.(false)
+    }
   }
 
   return (
@@ -327,14 +344,21 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange 
           <div className="flex justify-center">
             <button
               onClick={handleSubmit}
-              disabled={!inputText.trim() || !selectedProduct}
+              disabled={!inputText.trim() || !selectedProduct || isGenerating}
               className={`px-8 py-3 rounded-lg font-semibold text-white transition-all duration-200 ${
-                inputText.trim() && selectedProduct
+                inputText.trim() && selectedProduct && !isGenerating
                   ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-xl transform hover:scale-105'
                   : 'bg-gray-300 cursor-not-allowed'
               }`}
             >
-              🚀 Submit to Riley
+              {isGenerating ? (
+                <>
+                  <div className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  Generating...
+                </>
+              ) : (
+                '🚀 Submit to Riley'
+              )}
             </button>
           </div>
         </div>

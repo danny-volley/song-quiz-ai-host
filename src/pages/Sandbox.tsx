@@ -3,9 +3,14 @@ import ResponseLengthSelector from '../components/ResponseLengthSelector'
 import FlowStepSelector from '../components/FlowStepSelector'
 import PlayerConfiguration from '../components/PlayerConfiguration'
 import PersonalitySliders from '../components/PersonalitySliders'
+import InputSystem from '../components/InputSystem'
+import ResponseDisplay from '../components/ResponseDisplay'
 import { useSandboxState } from '../hooks/useSandboxState'
+import { useState } from 'react'
 
 export default function Sandbox() {
+  const [isGeneratingResponse, setIsGeneratingResponse] = useState(false)
+  
   const {
     state,
     updateProduct,
@@ -15,6 +20,8 @@ export default function Sandbox() {
     updateFlowStepSettings,
     updatePersonalitySettings,
     updatePlayers,
+    updateInputText,
+    updateLastResponse,
     resetState,
     isValid
   } = useSandboxState()
@@ -78,6 +85,25 @@ export default function Sandbox() {
           onSettingsChange={updatePersonalitySettings}
         />
       </div>
+
+      {/* Input System */}
+      <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <InputSystem
+          selectedProduct={state.selectedProduct}
+          inputText={state.inputText}
+          onInputChange={updateInputText}
+          sandboxState={state}
+          onResponseGenerated={updateLastResponse}
+          onGeneratingChange={setIsGeneratingResponse}
+        />
+      </div>
+
+      {/* Response Display */}
+      <ResponseDisplay
+        response={state.lastResponse || null}
+        isGenerating={isGeneratingResponse}
+        onClear={() => updateLastResponse(undefined)}
+      />
       
       {/* Configuration Status */}
       <div className={`

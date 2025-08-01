@@ -71,4 +71,45 @@ export interface SandboxState {
   personalitySettings: PersonalitySettings
   players: Player[]
   inputText: string
+  lastResponse?: GeneratedResponse
+}
+
+export interface GeneratedResponse {
+  id: string
+  timestamp: number
+  input: {
+    text: string
+    mode: 'text' | 'voice'
+  }
+  context: ResponseContext
+  response: {
+    text: string
+    personality: PersonalityAnalysis
+    metadata: ResponseMetadata
+  }
+}
+
+export interface ResponseContext {
+  product: ProductType
+  gameMode: GameMode
+  players: Player[]
+  responseLength: ResponseLength
+  flowStep: string
+  flowStepSettings: FlowStepSettings
+  personalitySettings: PersonalitySettings
+}
+
+export interface PersonalityAnalysis {
+  style: string
+  energy: string
+  support: string
+  tone: 'playful' | 'balanced' | 'snarky'
+  excitement: 'low' | 'moderate' | 'high' | 'very-high'
+  encouragement: 'gentle' | 'realistic' | 'tough'
+}
+
+export interface ResponseMetadata {
+  processingTime: number
+  wordCount: number
+  estimatedSpeechDuration: number
 }

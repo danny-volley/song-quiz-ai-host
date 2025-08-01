@@ -10,6 +10,11 @@ interface UseVoiceRecordingResult {
   clearRecording: () => void
 }
 
+// Check if Web Speech API is available
+const isWebSpeechSupported = () => {
+  return 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window
+}
+
 export function useVoiceRecording(): UseVoiceRecordingResult {
   const [isRecording, setIsRecording] = useState(false)
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
@@ -18,6 +23,8 @@ export function useVoiceRecording(): UseVoiceRecordingResult {
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
+  const speechRecognitionRef = useRef<any>(null)
+  const streamRef = useRef<MediaStream | null>(null)
 
   const startRecording = useCallback(async () => {
     try {
@@ -32,7 +39,46 @@ export function useVoiceRecording(): UseVoiceRecordingResult {
         }
       })
 
-      // Create MediaRecorder
+      streamRef.current = stream
+
+      // Setup Web Speech API if available
+      if (isWebSpeechSupported()) {
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+        const recognition = new SpeechRecognition()
+        
+        recognition.continuous = true
+        recognition.interimResults = true
+        recognition.lang = 'en-US'
+        
+        recognition.onresult = (event: any) => {
+          let finalTranscript = ''
+          
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript
+            if (event.results[i].isFinal) {
+              finalTranscript += transcript
+            }
+          }
+          
+          if (finalTranscript) {
+            setTranscription(finalTranscript.trim())
+          }
+        }
+
+        recognition.onerror = (event: any) => {
+          console.error('Speech recognition error:', event.error)
+          setError(`Speech recognition error: ${event.error}`)
+        }
+
+        recognition.onend = () => {
+          speechRecognitionRef.current = null
+        }
+
+        speechRecognitionRef.current = recognition
+        recognition.start()
+      }
+
+      // Create MediaRecorder for audio backup
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType: 'audio/webm;codecs=opus'
       })
@@ -51,11 +97,15 @@ export function useVoiceRecording(): UseVoiceRecordingResult {
         setAudioBlob(audioBlob)
         
         // Stop all audio tracks
-        stream.getTracks().forEach(track => track.stop())
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach(track => track.stop())
+          streamRef.current = null
+        }
         
-        // For now, set a placeholder transcription
-        // In a real implementation, you would send the audio to a speech-to-text service
-        setTranscription("Voice recording completed. Speech-to-text integration coming soon...")
+        // If no speech recognition result and no existing transcription, show fallback
+        if (!transcription && !isWebSpeechSupported()) {
+          setTranscription("Voice recorded. Speech-to-text not supported in this browser.")
+        }
       }
 
       mediaRecorder.start(100) // Collect data every 100ms
@@ -65,12 +115,17 @@ export function useVoiceRecording(): UseVoiceRecordingResult {
       setError(err instanceof Error ? err.message : 'Failed to start recording')
       console.error('Recording error:', err)
     }
-  }, [])
+  }, [transcription])
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop()
       setIsRecording(false)
+    }
+    
+    // Stop speech recognition
+    if (speechRecognitionRef.current) {
+      speechRecognitionRef.current.stop()
     }
   }, [isRecording])
 
@@ -79,6 +134,18 @@ export function useVoiceRecording(): UseVoiceRecordingResult {
     setTranscription('')
     setError(null)
     audioChunksRef.current = []
+    
+    // Clean up speech recognition
+    if (speechRecognitionRef.current) {
+      speechRecognitionRef.current.stop()
+      speechRecognitionRef.current = null
+    }
+    
+    // Clean up media stream
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop())
+      streamRef.current = null
+    }
   }, [])
 
   return {
