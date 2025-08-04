@@ -1,6 +1,6 @@
-# AI Response Generation Setup
+# AI & Voice Setup Guide
 
-The Riley AI Host sandbox now supports both template-based and AI-powered responses using OpenAI's GPT-3.5 model.
+The Riley AI Host sandbox supports AI-powered responses with text-to-speech output using OpenAI and ElevenLabs integration.
 
 ## Quick Setup
 
@@ -9,23 +9,30 @@ The Riley AI Host sandbox now supports both template-based and AI-powered respon
    - Create a new API key
    - Copy the key (starts with `sk-proj-...`)
 
-2. **Configure Environment**
+2. **Get ElevenLabs API Key** (for voice synthesis)
+   - Visit https://elevenlabs.io/
+   - Create account and get API key from profile settings
+   - Copy the key
+
+3. **Configure Environment**
    ```bash
    # Edit the .env file in your project root
    echo "VITE_OPENAI_API_KEY=your-actual-api-key-here" > .env
-   echo "VITE_OPENAI_MODEL=gpt-3.5-turbo" >> .env
+   echo "VITE_OPENAI_MODEL=gpt-4o" >> .env
+   echo "VITE_ELEVENLABS_API_KEY=your-elevenlabs-api-key-here" >> .env
    ```
 
-3. **Restart Development Server**
+4. **Restart Development Server**
    ```bash
    npm run dev
    ```
 
-4. **Test AI Responses**
+5. **Test AI & Voice Responses**
    - Open the sandbox in your browser
    - Toggle from "📋 Templates" to "🤖 AI" in the input section
    - You should see "AI Mode Active" indicator
-   - Submit a scenario to test AI-generated responses
+   - Submit a scenario to test AI-generated responses with voice synthesis
+   - Audio controls will appear for TTS playback
 
 ## Features
 

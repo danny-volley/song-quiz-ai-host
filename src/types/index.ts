@@ -112,4 +112,14 @@ export interface ResponseMetadata {
   processingTime: number
   wordCount: number
   estimatedSpeechDuration: number
+  tts?: TTSMetadata
+}
+
+export interface TTSMetadata {
+  audioUrl?: string
+  duration: number
+  isGenerating: boolean
+  hasError: boolean
+  error?: string
+  generationTime?: number
 }
