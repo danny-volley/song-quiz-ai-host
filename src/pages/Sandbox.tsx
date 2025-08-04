@@ -23,9 +23,7 @@ export default function Sandbox() {
     updatePersonalitySettings,
     updatePlayers,
     updateInputText,
-    updateLastResponse,
-    resetState,
-    isValid
+    updateLastResponse
   } = useSandboxState()
 
   const theme = getTheme(state.selectedProduct)
