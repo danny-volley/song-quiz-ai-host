@@ -3,6 +3,7 @@ import type { ProductType, SandboxState, GeneratedResponse } from '../types'
 import { useVoiceRecording } from '../hooks/useVoiceRecording'
 import { responseGenerator } from '../services/responseGenerator'
 import { aiResponseGenerator } from '../services/aiResponseGenerator'
+import { getRandomExample } from '../utils/exampleGenerator'
 
 interface InputSystemProps {
   selectedProduct: ProductType | null
@@ -13,86 +14,11 @@ interface InputSystemProps {
   onGeneratingChange?: (isGenerating: boolean) => void
 }
 
-interface ExampleScenario {
-  title: string
-  description: string
-  context: string
-}
-
-const exampleScenarios: Record<ProductType, ExampleScenario[]> = {
-  songquiz: [
-    {
-      title: "Perfect Streak",
-      description: "Player got 5 songs correct in a row",
-      context: "Amazing! You just nailed 5 songs in a row - 'Bohemian Rhapsody', 'Sweet Child O Mine', 'Hotel California', 'Billie Jean', and 'Smells Like Teen Spirit'. You're on fire!"
-    },
-    {
-      title: "Wrong Answer",
-      description: "Player missed a popular 80s song",
-      context: "Oops! That was 'Don't Stop Believin' by Journey - one of the biggest hits of the 80s. Don't worry, happens to the best of us!"
-    },
-    {
-      title: "Close Call",
-      description: "Player got it right at the last second",
-      context: "Whew! You got 'Thriller' by Michael Jackson with just 2 seconds left on the clock. That was cutting it close!"
-    },
-    {
-      title: "Genre Master",
-      description: "Player excelling in specific music genre",
-      context: "Wow! You're absolutely crushing this hip-hop playlist - 8 out of 10 correct on these rap classics!"
-    }
-  ],
-  wheel: [
-    {
-      title: "Big Solve",
-      description: "Player solved a difficult puzzle",
-      context: "Incredible! You solved 'PRACTICE MAKES PERFECT' with only the letters R, S, T, L, N, E revealed. That's some serious puzzle-solving skills!"
-    },
-    {
-      title: "Bankrupt Hit",
-      description: "Player landed on bankrupt",
-      context: "Oh no! You just hit BANKRUPT and lost $2,400. That's gotta sting, but don't give up - there's still time to bounce back!"
-    },
-    {
-      title: "Big Money Spin",
-      description: "Player landed on high value",
-      context: "YES! You just spun $5,000 and got the letter T - there are 3 T's in the puzzle! That's $15,000 right there!"
-    },
-    {
-      title: "Final Puzzle Win",
-      description: "Player won the bonus round",
-      context: "Unbelievable! You solved the final puzzle 'CHOCOLATE CHIP COOKIE' and won the car! What an amazing finish!"
-    }
-  ],
-  jeopardy: [
-    {
-      title: "Daily Double Wager",
-      description: "Player found Daily Double and made big wager",
-      context: "You found the Daily Double in 'POTPOURRI' for $1,000! You're betting it all - $8,000 is riding on this answer!"
-    },
-    {
-      title: "Category Sweep",
-      description: "Player completed entire category",
-      context: "Outstanding! You just ran the entire 'WORLD CAPITALS' category - all five clues correct! You really know your geography!"
-    },
-    {
-      title: "Comeback Story",
-      description: "Player rallied from behind",
-      context: "What a turnaround! You were down $5,000 going into Double Jeopardy, but now you're leading by $3,000. Incredible comeback!"
-    },
-    {
-      title: "Final Jeopardy Drama",
-      description: "Close Final Jeopardy finish",
-      context: "This Final Jeopardy is going to decide it all! You're trailing by just $400 - your wager of $2,000 could win or lose the game!"
-    }
-  ]
-}
 
 type InputMode = 'text' | 'voice'
 
 export default function InputSystem({ selectedProduct, inputText, onInputChange, sandboxState, onResponseGenerated, onGeneratingChange }: InputSystemProps) {
   const [inputMode, setInputMode] = useState<InputMode>('text')
-  const [showExamples, setShowExamples] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [useAI, setUseAI] = useState(aiResponseGenerator.isReady())
   
@@ -105,12 +31,18 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
     clearRecording
   } = useVoiceRecording()
 
-  const currentExamples = selectedProduct ? exampleScenarios[selectedProduct] || [] : []
   const characterLimit = 500
 
-  const handleExampleSelect = (scenario: ExampleScenario) => {
-    onInputChange(scenario.context)
-    setShowExamples(false)
+  const handleProvideExample = () => {
+    if (!selectedProduct || !sandboxState.selectedFlowStep) return
+    
+    const example = getRandomExample(
+      selectedProduct,
+      sandboxState.selectedFlowStep as any, // Type assertion needed due to string/FlowStepType mismatch
+      sandboxState.flowStepSettings
+    )
+    
+    onInputChange(example.text)
   }
 
   // Update input text when transcription is available
@@ -278,40 +210,15 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
             </div>
           </div>
 
-          {/* Example Scenarios */}
-          {selectedProduct && currentExamples.length > 0 && (
-            <div className="space-y-2">
+          {/* Provide Example Button */}
+          {selectedProduct && sandboxState.selectedFlowStep && (
+            <div className="flex justify-center">
               <button
-                onClick={() => setShowExamples(!showExamples)}
-                className="text-sm font-medium text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+                onClick={handleProvideExample}
+                className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors font-medium text-sm flex items-center gap-2"
               >
-                💡 Example Scenarios
-                <span className={`transform transition-transform ${showExamples ? 'rotate-180' : ''}`}>
-                  ▼
-                </span>
+                💡 Provide Example
               </button>
-              
-              {showExamples && (
-                <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto">
-                  {currentExamples.map((scenario, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleExampleSelect(scenario)}
-                      className="p-3 text-left border border-gray-200 rounded-lg hover:border-indigo-300 hover:bg-indigo-50 transition-colors"
-                    >
-                      <div className="font-medium text-gray-900 text-sm mb-1">
-                        {scenario.title}
-                      </div>
-                      <div className="text-xs text-gray-600 mb-2">
-                        {scenario.description}
-                      </div>
-                      <div className="text-xs text-gray-500 line-clamp-2">
-                        "{scenario.context.substring(0, 100)}..."
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
           )}
         </div>
