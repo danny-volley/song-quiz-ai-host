@@ -9,91 +9,59 @@ interface ProductSelectorProps {
 }
 
 export default function ProductSelector({ selectedProduct, selectedGameMode, onProductChange, onGameModeChange }: ProductSelectorProps) {
+  const selectedProductInfo = products.find(p => p.id === selectedProduct)
+  
+  const gameModes = [
+    { id: 'single' as const, label: 'Single Player' },
+    { id: 'multiplayer' as const, label: 'Multiplayer' }
+  ]
+
   return (
     <div className="space-y-4">
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          🎮 Select Game Product
-        </h3>
-        <p className="text-sm text-gray-600 mb-4">
-          Choose which game context Riley should provide commentary for.
-        </p>
-      </div>
+      <h3 className="text-lg font-semibold text-gray-900">
+        🎮 Game Product
+      </h3>
       
-      <div className="grid grid-cols-1 gap-3">
-        {products.map((product) => (
-          <button
-            key={product.id}
-            onClick={() => onProductChange(product.id)}
-            className={`
-              p-4 text-left border rounded-lg transition-all duration-200 hover:shadow-md
-              ${selectedProduct === product.id
-                ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
-                : 'border-gray-200 bg-white hover:border-gray-300'
-              }
-            `}
+      {/* Horizontally Aligned Dropdowns */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Product Selection Dropdown */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Product</label>
+          <select
+            value={selectedProduct || ''}
+            onChange={(e) => onProductChange(e.target.value as ProductType)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-semibold text-gray-900">{product.name}</h4>
-                <p className="text-sm text-gray-600 mt-1">{product.description}</p>
-              </div>
-              <div className={`
-                w-4 h-4 rounded-full border-2 transition-colors
-                ${selectedProduct === product.id
-                  ? 'border-blue-500 bg-blue-500'
-                  : 'border-gray-300'
-                }
-              `}>
-                {selectedProduct === product.id && (
-                  <div className="w-2 h-2 bg-white rounded-full mx-auto mt-0.5" />
-                )}
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
+            <option value="">Select a product...</option>
+            {products.map((product) => (
+              <option key={product.id} value={product.id}>
+                {product.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      {/* Game Mode Selection */}
-      <div className="space-y-3 pt-4 border-t border-gray-200">
-        <h4 className="font-medium text-gray-900">Game Mode</h4>
-        <div className="flex gap-3">
-          {[
-            { id: 'single' as const, label: 'Single Player', desc: 'One player experience' },
-            { id: 'multiplayer' as const, label: 'Multiplayer', desc: 'Multiple players competing' }
-          ].map((mode) => (
-            <button
-              key={mode.id}
-              onClick={() => onGameModeChange(mode.id)}
-              className={`
-                flex-1 p-3 text-left border rounded-lg transition-all duration-200 hover:shadow-sm
-                ${selectedGameMode === mode.id
-                  ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-200'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
-                }
-              `}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <h5 className="font-medium text-gray-900 text-sm">{mode.label}</h5>
-                  <p className="text-xs text-gray-600 mt-0.5">{mode.desc}</p>
-                </div>
-                <div className={`
-                  w-3 h-3 rounded-full border-2 transition-colors
-                  ${selectedGameMode === mode.id
-                    ? 'border-blue-500 bg-blue-500'
-                    : 'border-gray-300'
-                  }
-                `}>
-                  {selectedGameMode === mode.id && (
-                    <div className="w-1 h-1 bg-white rounded-full mx-auto mt-0.5" />
-                  )}
-                </div>
-              </div>
-            </button>
-          ))}
+        {/* Game Mode Selection Dropdown */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Game Mode</label>
+          <select
+            value={selectedGameMode}
+            onChange={(e) => onGameModeChange(e.target.value as GameMode)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            {gameModes.map((mode) => (
+              <option key={mode.id} value={mode.id}>
+                {mode.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
+
+      {/* Product Description */}
+      {selectedProductInfo && (
+        <p className="text-xs text-gray-600">{selectedProductInfo.description}</p>
+      )}
     </div>
   )
 }
