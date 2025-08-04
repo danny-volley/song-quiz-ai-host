@@ -1,8 +1,10 @@
 import type { PersonalitySettings } from '../types'
+import type { Theme } from '../utils/themes'
 
 interface PersonalitySlidersProps {
   settings: PersonalitySettings
   onSettingsChange: (settings: PersonalitySettings) => void
+  theme: Theme
 }
 
 interface SliderConfig {
@@ -14,14 +16,14 @@ interface SliderConfig {
   color: string
 }
 
-const sliderConfigs: SliderConfig[] = [
+const getSliderConfigs = (theme: Theme): SliderConfig[] => [
   {
     key: 'playfulSnarky',
     label: 'Playful ←→ Snarky',
     leftLabel: 'Playful',
     rightLabel: 'Snarky',
     description: 'Controls level of teasing, comedic timing, and edge in responses',
-    color: 'pink'
+    color: theme.primary
   },
   {
     key: 'excitementStyle',
@@ -29,7 +31,7 @@ const sliderConfigs: SliderConfig[] = [
     leftLabel: 'Easily Excited',
     rightLabel: 'Focused',
     description: 'Determines energy distribution and reaction intensity',
-    color: 'orange'
+    color: theme.secondary
   },
   {
     key: 'encouragementStyle',
@@ -37,11 +39,13 @@ const sliderConfigs: SliderConfig[] = [
     leftLabel: 'Gentle',
     rightLabel: 'Tough Love',
     description: 'Controls supportive language style and response to player struggles',
-    color: 'green'
+    color: theme.accent
   }
 ]
 
-export default function PersonalitySliders({ settings, onSettingsChange }: PersonalitySlidersProps) {
+export default function PersonalitySliders({ settings, onSettingsChange, theme }: PersonalitySlidersProps) {
+  const sliderConfigs = getSliderConfigs(theme)
+
   const updateSetting = (key: keyof PersonalitySettings, value: number) => {
     onSettingsChange({
       ...settings,
@@ -58,12 +62,52 @@ export default function PersonalitySliders({ settings, onSettingsChange }: Perso
   }
 
   const getColorClasses = (color: string, isActive: boolean = false) => {
-    const colors = {
-      pink: isActive ? 'bg-pink-500' : 'bg-pink-200',
-      orange: isActive ? 'bg-orange-500' : 'bg-orange-200',
-      green: isActive ? 'bg-green-500' : 'bg-green-200'
+    const colorMap: Record<string, { active: string; inactive: string }> = {
+      'purple-600': { active: 'bg-purple-600', inactive: 'bg-purple-200' },
+      'pink-500': { active: 'bg-pink-500', inactive: 'bg-pink-200' },
+      'purple-500': { active: 'bg-purple-500', inactive: 'bg-purple-200' },
+      'green-600': { active: 'bg-green-600', inactive: 'bg-green-200' },
+      'yellow-500': { active: 'bg-yellow-500', inactive: 'bg-yellow-200' },
+      'green-500': { active: 'bg-green-500', inactive: 'bg-green-200' },
+      'blue-600': { active: 'bg-blue-600', inactive: 'bg-blue-200' },
+      'sky-500': { active: 'bg-sky-500', inactive: 'bg-sky-200' },
+      'blue-500': { active: 'bg-blue-500', inactive: 'bg-blue-200' },
+      'gray-600': { active: 'bg-gray-600', inactive: 'bg-gray-200' },
+      'gray-500': { active: 'bg-gray-500', inactive: 'bg-gray-200' }
     }
-    return colors[color as keyof typeof colors] || colors.pink
+    
+    const colors = colorMap[color] || colorMap['gray-500']
+    return isActive ? colors.active : colors.inactive
+  }
+
+  const getValueDisplayClasses = (color: string) => {
+    // Function to get badge display classes based on theme color
+    const badgeMap: Record<string, string> = {
+      'purple-600': 'bg-purple-100 text-purple-800',
+      'pink-500': 'bg-pink-100 text-pink-800',
+      'purple-500': 'bg-purple-100 text-purple-800',
+      'green-600': 'bg-green-100 text-green-800',
+      'yellow-500': 'bg-yellow-100 text-yellow-800',
+      'green-500': 'bg-green-100 text-green-800',
+      'blue-600': 'bg-blue-100 text-blue-800',
+      'sky-500': 'bg-sky-100 text-sky-800',
+      'blue-500': 'bg-blue-100 text-blue-800',
+      'gray-600': 'bg-gray-100 text-gray-800',
+      'gray-500': 'bg-gray-100 text-gray-800'
+    }
+    
+    return badgeMap[color] || badgeMap['gray-500']
+  }
+
+  const getPreviewTextClass = (textType: 'primary' | 'secondary') => {
+    if (theme.name === 'Song Quiz') {
+      return textType === 'primary' ? 'text-purple-900' : 'text-purple-800'
+    } else if (theme.name === 'Wheel of Fortune') {
+      return textType === 'primary' ? 'text-green-900' : 'text-green-800'
+    } else if (theme.name === 'Jeopardy') {
+      return textType === 'primary' ? 'text-blue-900' : 'text-blue-800'
+    }
+    return textType === 'primary' ? 'text-gray-900' : 'text-gray-800'
   }
 
   return (
@@ -177,12 +221,7 @@ export default function PersonalitySliders({ settings, onSettingsChange }: Perso
             </div>
 
             {/* Value Display */}
-            <span className={`
-              inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
-              ${config.color === 'pink' ? 'bg-pink-100 text-pink-800' : ''}
-              ${config.color === 'orange' ? 'bg-orange-100 text-orange-800' : ''}
-              ${config.color === 'green' ? 'bg-green-100 text-green-800' : ''}
-            `}>
+            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getValueDisplayClasses(config.color)}`}>
               {settings[config.key]} / 5
             </span>
           </div>
@@ -190,9 +229,9 @@ export default function PersonalitySliders({ settings, onSettingsChange }: Perso
       </div>
 
       {/* Detailed Personality Preview */}
-      <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
-        <h4 className="font-medium text-purple-900 text-sm mb-3">Current Style:</h4>
-        <div className="space-y-2 text-xs text-purple-800">
+      <div className={`p-4 bg-gradient-to-r ${theme.gradients.personality} rounded-lg border border-gray-200`}>
+        <h4 className={`font-medium ${getPreviewTextClass('primary')} text-sm mb-3`}>Current Style:</h4>
+        <div className={`space-y-2 text-xs ${getPreviewTextClass('secondary')}`}>
           <div>
             <span className="font-medium">Style ({settings.playfulSnarky}/5):</span>
             <span className="ml-1 italic">"{

@@ -19,7 +19,7 @@ export default function PlayerConfiguration({ gameMode, players, onPlayersChange
   const addPlayer = () => {
     const newPlayer: Player = {
       id: `player_${Date.now()}`,
-      name: `Player ${players.length + 1}`,
+      name: players.length === 0 ? 'Charlie' : `Player ${players.length + 1}`,
       score: 0
     }
     onPlayersChange([...players, newPlayer])

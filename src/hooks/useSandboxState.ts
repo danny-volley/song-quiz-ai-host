@@ -23,7 +23,7 @@ const initialState: SandboxState = {
   players: [
     {
       id: 'player_1',
-      name: 'Player 1',
+      name: 'Charlie',
       score: 0
     }
   ],
@@ -71,7 +71,7 @@ export function useSandboxState() {
       selectedGameMode: mode,
       // Reset to single player when switching to single mode
       players: mode === 'single' 
-        ? [{ id: 'player_1', name: 'Player 1', score: 0 }]
+        ? [{ id: 'player_1', name: 'Charlie', score: 0 }]
         : prev.players.length === 1 
           ? [...prev.players, { id: 'player_2', name: 'Player 2', score: 0 }]
           : prev.players
