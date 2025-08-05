@@ -14,7 +14,7 @@ export default function ResponseDisplay({ response, isGenerating, onClear }: Res
       response={response}
       isGenerating={isGenerating}
       onClear={onClear}
-      enableTTS={true}
+      enableTTS={response?.generateVoice ?? true}
       autoPlayTTS={true}
     />
   )

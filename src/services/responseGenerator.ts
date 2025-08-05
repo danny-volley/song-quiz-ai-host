@@ -251,7 +251,8 @@ class ResponseGenerator {
   async generateResponse(
     inputText: string,
     inputMode: 'text' | 'voice',
-    state: SandboxState
+    state: SandboxState,
+    generateVoice: boolean = true
   ): Promise<GeneratedResponse> {
     const startTime = Date.now()
 
@@ -286,7 +287,8 @@ class ResponseGenerator {
         text: responseText,
         personality,
         metadata
-      }
+      },
+      generateVoice
     }
   }
 }

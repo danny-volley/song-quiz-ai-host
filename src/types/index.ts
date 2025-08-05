@@ -87,6 +87,7 @@ export interface GeneratedResponse {
     personality: PersonalityAnalysis
     metadata: ResponseMetadata
   }
+  generateVoice: boolean
 }
 
 export interface ResponseContext {

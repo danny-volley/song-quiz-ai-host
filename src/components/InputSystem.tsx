@@ -21,6 +21,7 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
   const [inputMode, setInputMode] = useState<InputMode>('text')
   const [isGenerating, setIsGenerating] = useState(false)
   const [useAI, setUseAI] = useState(aiResponseGenerator.isReady())
+  const [generateVoice, setGenerateVoice] = useState(true)
   
   const {
     isRecording,
@@ -76,7 +77,8 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
       const response = await generator.generateResponse(
         inputText,
         inputMode,
-        sandboxState
+        sandboxState,
+        generateVoice
       )
       
       onResponseGenerated(response)
@@ -173,21 +175,44 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
         </div>
       )}
 
-      {/* Current Mode Indicator */}
-      {(useAI && aiResponseGenerator.isReady()) && (
-        <div className="p-2 bg-green-50 rounded-lg border border-green-200">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-2">
-              <span className="text-green-600">🤖</span>
-              <span className="font-medium text-green-900">AI Mode Active</span>
-              <span className="text-green-700">- Using {aiResponseGenerator.getCurrentModel()}</span>
-            </div>
-            <div className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
-              Change model in .env file
+      {/* Current Mode Indicator and Context Status */}
+      <div className="flex items-center gap-3">
+        {(useAI && aiResponseGenerator.isReady()) ? (
+          <div className="flex-1 p-2 bg-green-50 rounded-lg border border-green-200">
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-green-600">🤖</span>
+                <span className="font-medium text-green-900">AI Mode Active</span>
+                <span className="text-green-700">- Using {aiResponseGenerator.getCurrentModel()}</span>
+              </div>
+              <div className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+                Change model in .env file
+              </div>
             </div>
           </div>
+        ) : !useAI ? (
+          <div className="flex-1 p-2 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-blue-600">📋</span>
+              <span className="font-medium text-blue-900">Using fixed responses as a fallback</span>
+            </div>
+          </div>
+        ) : null}
+
+        {/* Context Status Indicator */}
+        <div className={`px-3 py-2 rounded-lg border text-sm font-medium ${
+          inputText.trim() 
+            ? 'bg-green-50 border-green-200 text-green-900' 
+            : 'bg-red-50 border-red-200 text-red-900'
+        }`}>
+          <div className="flex items-center gap-2">
+            <span className={`w-2 h-2 rounded-full ${
+              inputText.trim() ? 'bg-green-500' : 'bg-red-500'
+            }`}></span>
+            <span>{inputText.trim() ? 'Context Ready' : 'Add Context'}</span>
+          </div>
         </div>
-      )}
+      </div>
 
       {inputMode === 'text' ? (
         <div className="space-y-3">
@@ -210,17 +235,58 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
             </div>
           </div>
 
-          {/* Provide Example Button */}
-          {selectedProduct && sandboxState.selectedFlowStep && (
-            <div className="flex justify-center">
+          {/* Three-column layout: Provide Example | Submit Button | Generate Voice */}
+          <div className="flex items-center justify-between">
+            {/* Left: Provide Example Button */}
+            <div className="flex-1 flex justify-start">
+              {selectedProduct && sandboxState.selectedFlowStep && (
+                <button
+                  onClick={handleProvideExample}
+                  className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors font-medium text-sm flex items-center gap-2"
+                >
+                  💡 Provide Example
+                </button>
+              )}
+            </div>
+
+            {/* Center: Submit Button */}
+            <div className="flex-1 flex justify-center">
               <button
-                onClick={handleProvideExample}
-                className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors font-medium text-sm flex items-center gap-2"
+                onClick={handleSubmit}
+                disabled={!inputText.trim() || !selectedProduct || isGenerating}
+                className={`px-6 py-2 rounded-lg font-semibold text-white transition-all duration-200 ${
+                  inputText.trim() && selectedProduct && !isGenerating
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-xl transform hover:scale-105'
+                    : 'bg-gray-300 cursor-not-allowed'
+                }`}
               >
-                💡 Provide Example
+                {isGenerating ? (
+                  <>
+                    <div className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Generating...
+                  </>
+                ) : (
+                  '🚀 Submit to Riley'
+                )}
               </button>
             </div>
-          )}
+
+            {/* Right: Generate Voice Checkbox */}
+            <div className="flex-1 flex justify-end">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="generateVoice"
+                  checked={generateVoice}
+                  onChange={(e) => setGenerateVoice(e.target.checked)}
+                  className="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 focus:ring-2"
+                />
+                <label htmlFor="generateVoice" className="text-sm font-medium text-gray-700">
+                  🎤 Generate Voice
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
       ) : (
         /* Voice Input Mode */
@@ -292,47 +358,53 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
               <p className="text-sm text-blue-800">"{inputText}"</p>
             </div>
           )}
+
+          {/* Three-column layout: (empty) | Submit Button | Generate Voice */}
+          <div className="flex items-center justify-between">
+            {/* Left: Empty space (no Provide Example in voice mode) */}
+            <div className="flex-1"></div>
+
+            {/* Center: Submit Button */}
+            <div className="flex-1 flex justify-center">
+              <button
+                onClick={handleSubmit}
+                disabled={!inputText.trim() || !selectedProduct || isGenerating}
+                className={`px-6 py-2 rounded-lg font-semibold text-white transition-all duration-200 ${
+                  inputText.trim() && selectedProduct && !isGenerating
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-xl transform hover:scale-105'
+                    : 'bg-gray-300 cursor-not-allowed'
+                }`}
+              >
+                {isGenerating ? (
+                  <>
+                    <div className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Generating...
+                  </>
+                ) : (
+                  '🚀 Submit to Riley'
+                )}
+              </button>
+            </div>
+
+            {/* Right: Generate Voice Checkbox */}
+            <div className="flex-1 flex justify-end">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="generateVoiceVoiceMode"
+                  checked={generateVoice}
+                  onChange={(e) => setGenerateVoice(e.target.checked)}
+                  className="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 focus:ring-2"
+                />
+                <label htmlFor="generateVoiceVoiceMode" className="text-sm font-medium text-gray-700">
+                  🎤 Generate Voice
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Input Status & Submit */}
-      {inputText && (
-        <div className="space-y-3">
-          <div className="p-3 bg-green-50 rounded-lg border border-green-200">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-              <span className="text-sm font-medium text-green-900">
-                Context Ready
-              </span>
-            </div>
-            <p className="text-sm text-green-800 mt-1">
-              Riley is ready to respond to this scenario with your current personality and game settings.
-            </p>
-          </div>
-          
-          {/* Submit Button */}
-          <div className="flex justify-center">
-            <button
-              onClick={handleSubmit}
-              disabled={!inputText.trim() || !selectedProduct || isGenerating}
-              className={`px-8 py-3 rounded-lg font-semibold text-white transition-all duration-200 ${
-                inputText.trim() && selectedProduct && !isGenerating
-                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-xl transform hover:scale-105'
-                  : 'bg-gray-300 cursor-not-allowed'
-              }`}
-            >
-              {isGenerating ? (
-                <>
-                  <div className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Generating...
-                </>
-              ) : (
-                '🚀 Submit to Riley'
-              )}
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

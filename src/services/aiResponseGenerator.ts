@@ -263,7 +263,8 @@ The Jeopardy voice game delivers a daily quiz experience with clues across six c
   async generateResponse(
     inputText: string,
     inputMode: 'text' | 'voice',
-    state: SandboxState
+    state: SandboxState,
+    generateVoice: boolean = true
   ): Promise<GeneratedResponse> {
     const startTime = Date.now()
 
@@ -315,7 +316,8 @@ The Jeopardy voice game delivers a daily quiz experience with clues across six c
           text: responseText,
           personality,
           metadata
-        }
+        },
+        generateVoice
       }
     } catch (error) {
       console.error('OpenAI API error:', error)
