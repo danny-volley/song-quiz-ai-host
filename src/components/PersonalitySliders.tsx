@@ -55,9 +55,9 @@ export default function PersonalitySliders({ settings, onSettingsChange, theme }
 
   const resetToDefaults = () => {
     onSettingsChange({
-      playfulSnarky: 3,
-      excitementStyle: 3,
-      encouragementStyle: 3
+      playfulSnarky: 4,
+      excitementStyle: 4,
+      encouragementStyle: 4
     })
   }
 
@@ -164,11 +164,11 @@ export default function PersonalitySliders({ settings, onSettingsChange, theme }
                 {/* Slider Handle */}
                 <div
                   className={`
-                    absolute w-4 h-4 rounded-full border-2 border-white shadow-lg cursor-grab active:cursor-grabbing z-10
+                    absolute w-6 h-6 rounded-full border-2 border-white shadow-lg cursor-grab active:cursor-grabbing z-10
                     ${getColorClasses(config.color, true)}
                   `}
                   style={{
-                    bottom: `${((settings[config.key] - 1) / 4) * (80 - 16)}px`, // 80px track height - 16px handle
+                    bottom: `${((settings[config.key] - 1) / 4) * (80 - 24)}px`, // 80px track height - 24px handle
                     left: '50%',
                     transform: 'translateX(-50%)'
                   }}
@@ -180,7 +180,7 @@ export default function PersonalitySliders({ settings, onSettingsChange, theme }
                     const sliderRect = slider.getBoundingClientRect()
                     const startY = e.clientY
                     const startValue = settings[config.key]
-                    const trackHeight = sliderRect.height - 16 // Account for handle height
+                    const trackHeight = sliderRect.height - 24 // Account for handle height
                     
                     let isDragging = true
                     

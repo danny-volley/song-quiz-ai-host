@@ -7,6 +7,9 @@ interface PlayerConfigurationProps {
 }
 
 export default function PlayerConfiguration({ gameMode, players, onPlayersChange }: PlayerConfigurationProps) {
+  // List of default player names
+  const defaultNames = ['Charlie', 'Emilio', 'Ada', 'Maya', 'Jordan', 'Riley']
+  
   const updatePlayer = (index: number, field: keyof Player, value: string | number) => {
     const updatedPlayers = [...players]
     updatedPlayers[index] = {
@@ -17,10 +20,14 @@ export default function PlayerConfiguration({ gameMode, players, onPlayersChange
   }
 
   const addPlayer = () => {
+    // Give new players a realistic Song Quiz starting score (8-18 points)
+    const startingScore = Math.floor(Math.random() * 11) + 8 // Random between 8-18
     const newPlayer: Player = {
       id: `player_${Date.now()}`,
-      name: players.length === 0 ? 'Charlie' : `Player ${players.length + 1}`,
-      score: 0
+      name: players.length < defaultNames.length 
+        ? defaultNames[players.length] 
+        : `Player ${players.length + 1}`,
+      score: startingScore
     }
     onPlayersChange([...players, newPlayer])
   }

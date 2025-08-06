@@ -5,6 +5,7 @@ import type {
   PersonalityAnalysis,
   PersonalitySettings 
 } from '../types'
+import { PersonalityService } from './personalityService'
 
 class ResponseGenerator {
   private generateId(): string {
@@ -12,57 +13,7 @@ class ResponseGenerator {
   }
 
   private analyzePersonality(settings: PersonalitySettings): PersonalityAnalysis {
-    const getStyle = (value: number): string => {
-      if (value === 1) return 'Very Playful & Bubbly'
-      if (value === 2) return 'Playful & Lighthearted'
-      if (value === 3) return 'Balanced Wit'
-      if (value === 4) return 'Witty & Sharp-tongued'
-      return 'Very Snarky & Edgy'
-    }
-
-    const getEnergy = (value: number): string => {
-      if (value === 1) return 'Extremely high-energy, excited about everything'
-      if (value === 2) return 'High-energy reactions to most things'
-      if (value === 3) return 'Moderate energy distribution'
-      if (value === 4) return 'Selective, intense excitement for big moments'
-      return 'Very focused, only excited for major achievements'
-    }
-
-    const getSupport = (value: number): string => {
-      if (value === 1) return 'Very gentle, always supportive and understanding'
-      if (value === 2) return 'Supportive & sympathetic'
-      if (value === 3) return 'Supportive but realistic'
-      if (value === 4) return 'Direct & motivational with firm encouragement'
-      return 'Very tough love, direct and challenging'
-    }
-
-    const getTone = (value: number): 'playful' | 'balanced' | 'snarky' => {
-      if (value <= 2) return 'playful'
-      if (value === 3) return 'balanced'
-      return 'snarky'
-    }
-
-    const getExcitement = (value: number): 'low' | 'moderate' | 'high' | 'very-high' => {
-      if (value === 1) return 'very-high'
-      if (value === 2) return 'high'
-      if (value === 3) return 'moderate'
-      return 'low'
-    }
-
-    const getEncouragement = (value: number): 'gentle' | 'realistic' | 'tough' => {
-      if (value <= 2) return 'gentle'
-      if (value === 3) return 'realistic'
-      return 'tough'
-    }
-
-    return {
-      style: getStyle(settings.playfulSnarky),
-      energy: getEnergy(settings.excitementStyle),
-      support: getSupport(settings.encouragementStyle),
-      tone: getTone(settings.playfulSnarky),
-      excitement: getExcitement(settings.excitementStyle),
-      encouragement: getEncouragement(settings.encouragementStyle)
-    }
+    return PersonalityService.analyzePersonality(settings)
   }
 
   private generateResponseText(
@@ -170,7 +121,7 @@ class ResponseGenerator {
     template: string, 
     inputText: string, 
     context: ResponseContext, 
-    personality: PersonalityAnalysis
+    _personality: PersonalityAnalysis
   ): string {
     let response = template
 
@@ -182,17 +133,8 @@ class ResponseGenerator {
       response = response.replace('Well done!', "Don't worry, you'll get the next one!")
     }
 
-    // Add personality flair based on settings
-    if (personality.tone === 'playful') {
-      response = this.addPlayfulElements(response)
-    } else if (personality.tone === 'snarky') {
-      response = this.addSnarkyElements(response)
-    }
-
-    // Adjust for excitement level
-    if (personality.excitement === 'very-high') {
-      response = this.addExcitementElements(response)
-    }
+    // Apply comprehensive personality modifications
+    response = PersonalityService.applyPersonalityIntensity(response, context.personalitySettings)
 
     // Add context-specific details
     response = this.addContextDetails(response, inputText, context)
@@ -203,20 +145,6 @@ class ResponseGenerator {
     return response
   }
 
-  private addPlayfulElements(response: string): string {
-    const playfulWords = ['Awesome', 'Fantastic', 'Amazing', 'Super', 'Wonderful']
-    const randomPlayful = playfulWords[Math.floor(Math.random() * playfulWords.length)]
-    return response.replace('Great', randomPlayful)
-  }
-
-  private addSnarkyElements(response: string): string {
-    // Add a bit of edge to responses
-    return response + " ...if I do say so myself!"
-  }
-
-  private addExcitementElements(response: string): string {
-    return response + " 🎉"
-  }
 
   private addContextDetails(response: string, _inputText: string, context: ResponseContext): string {
     // Add specific details from the input context

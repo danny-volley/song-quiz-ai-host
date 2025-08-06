@@ -16,15 +16,15 @@ const initialState: SandboxState = {
     difficulty: 'medium'
   },
   personalitySettings: {
-    playfulSnarky: 3,
-    excitementStyle: 3,
-    encouragementStyle: 3
+    playfulSnarky: 4,
+    excitementStyle: 4,
+    encouragementStyle: 4
   },
   players: [
     {
       id: 'player_1',
       name: 'Charlie',
-      score: 0
+      score: 15
     }
   ],
   inputText: ''
@@ -71,9 +71,9 @@ export function useSandboxState() {
       selectedGameMode: mode,
       // Reset to single player when switching to single mode
       players: mode === 'single' 
-        ? [{ id: 'player_1', name: 'Charlie', score: 0 }]
+        ? [{ id: 'player_1', name: 'Charlie', score: 15 }]
         : prev.players.length === 1 
-          ? [...prev.players, { id: 'player_2', name: 'Player 2', score: 0 }]
+          ? [...prev.players, { id: 'player_2', name: 'Emilio', score: 12 }]
           : prev.players
     }))
   }, [])

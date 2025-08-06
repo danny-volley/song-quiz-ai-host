@@ -17,9 +17,12 @@ export default function FlowStepSettings({ stepType, settings, onSettingsChange 
   const renderSettings = () => {
     switch (stepType) {
       case 'round_result':
+      case 'answer_steal':
         return (
           <div className="space-y-3">
-            <h4 className="font-medium text-gray-900">Result Type</h4>
+            <h4 className="font-medium text-gray-900">
+              {stepType === 'answer_steal' ? 'Steal Result' : 'Result Type'}
+            </h4>
             <div className="flex gap-4">
               <label className="flex items-center">
                 <input
@@ -28,7 +31,9 @@ export default function FlowStepSettings({ stepType, settings, onSettingsChange 
                   onChange={(e) => updateSetting('isCorrect', e.target.checked ? true : false)}
                   className="rounded border-gray-300 text-green-600 focus:ring-green-500"
                 />
-                <span className="ml-2 text-base text-gray-700">Correct Answer</span>
+                <span className="ml-2 text-base text-gray-700">
+                  {stepType === 'answer_steal' ? 'Successful Steal' : 'Correct Answer'}
+                </span>
               </label>
               <label className="flex items-center">
                 <input
@@ -37,7 +42,9 @@ export default function FlowStepSettings({ stepType, settings, onSettingsChange 
                   onChange={(e) => updateSetting('isCorrect', e.target.checked ? false : true)}
                   className="rounded border-gray-300 text-red-600 focus:ring-red-500"
                 />
-                <span className="ml-2 text-base text-gray-700">Incorrect Answer</span>
+                <span className="ml-2 text-base text-gray-700">
+                  {stepType === 'answer_steal' ? 'Failed Steal' : 'Incorrect Answer'}
+                </span>
               </label>
             </div>
           </div>

@@ -30,7 +30,7 @@ export interface Product {
   flowSteps: FlowStep[]
 }
 
-export type FlowStepType = 'round_result' | 'game_result' | 'streak_milestone' | 'comeback_moment' | 
+export type FlowStepType = 'round_result' | 'game_result' | 'streak_milestone' | 'comeback_moment' | 'answer_steal' |
                           'puzzle_solve' | 'bankrupt' | 'big_money_spin' | 'final_puzzle' |
                           'daily_double' | 'category_completion' | 'final_jeopardy' | 'score_momentum'
 
@@ -105,8 +105,8 @@ export interface PersonalityAnalysis {
   energy: string
   support: string
   tone: 'playful' | 'balanced' | 'snarky'
-  excitement: 'low' | 'moderate' | 'high' | 'very-high'
-  encouragement: 'gentle' | 'realistic' | 'tough'
+  excitement: 'minimal' | 'low' | 'moderate' | 'high' | 'maximum'
+  encouragement: 'maximum-gentle' | 'gentle' | 'realistic' | 'tough' | 'maximum-tough'
 }
 
 export interface ResponseMetadata {

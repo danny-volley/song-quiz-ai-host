@@ -6,6 +6,7 @@ import type {
   PersonalityAnalysis,
   PersonalitySettings 
 } from '../types'
+import { PersonalityService } from './personalityService'
 
 class AIResponseGenerator {
   private openai: OpenAI
@@ -37,60 +38,10 @@ class AIResponseGenerator {
   }
 
   private analyzePersonality(settings: PersonalitySettings): PersonalityAnalysis {
-    const getStyle = (value: number): string => {
-      if (value === 1) return 'Very Playful & Bubbly'
-      if (value === 2) return 'Playful & Lighthearted'
-      if (value === 3) return 'Balanced Wit'
-      if (value === 4) return 'Witty & Sharp-tongued'
-      return 'Very Snarky & Edgy'
-    }
-
-    const getEnergy = (value: number): string => {
-      if (value === 1) return 'Extremely high-energy, excited about everything'
-      if (value === 2) return 'High-energy reactions to most things'
-      if (value === 3) return 'Moderate energy distribution'
-      if (value === 4) return 'Selective, intense excitement for big moments'
-      return 'Very focused, only excited for major achievements'
-    }
-
-    const getSupport = (value: number): string => {
-      if (value === 1) return 'Very gentle, always supportive and understanding'
-      if (value === 2) return 'Supportive & sympathetic'
-      if (value === 3) return 'Supportive but realistic'
-      if (value === 4) return 'Direct & motivational with firm encouragement'
-      return 'Very tough love, direct and challenging'
-    }
-
-    const getTone = (value: number): 'playful' | 'balanced' | 'snarky' => {
-      if (value <= 2) return 'playful'
-      if (value === 3) return 'balanced'
-      return 'snarky'
-    }
-
-    const getExcitement = (value: number): 'low' | 'moderate' | 'high' | 'very-high' => {
-      if (value === 1) return 'very-high'
-      if (value === 2) return 'high'
-      if (value === 3) return 'moderate'
-      return 'low'
-    }
-
-    const getEncouragement = (value: number): 'gentle' | 'realistic' | 'tough' => {
-      if (value <= 2) return 'gentle'
-      if (value === 3) return 'realistic'
-      return 'tough'
-    }
-
-    return {
-      style: getStyle(settings.playfulSnarky),
-      energy: getEnergy(settings.excitementStyle),
-      support: getSupport(settings.encouragementStyle),
-      tone: getTone(settings.playfulSnarky),
-      excitement: getExcitement(settings.excitementStyle),
-      encouragement: getEncouragement(settings.encouragementStyle)
-    }
+    return PersonalityService.analyzePersonality(settings)
   }
 
-  private buildSystemPrompt(context: ResponseContext, personality: PersonalityAnalysis): string {
+  private buildSystemPrompt(context: ResponseContext, _personality: PersonalityAnalysis): string {
     const gameContext = this.getGameContext(context)
     const responseExamples = this.getRileyResponseExamples(context.responseLength)
     
@@ -110,13 +61,8 @@ PERSONALITY PILLARS:
 - Relationship Builder: Makes players feel seen and recognized, treating them like valued contestants
 - Playful Confidence: Unshakeable confidence that lifts others up rather than putting them down
 
-CURRENT PERSONALITY SETTINGS:
-- Style: ${personality.style}
-- Energy Level: ${personality.energy}
-- Support Style: ${personality.support}
-- Tone: ${personality.tone}
-- Excitement: ${personality.excitement}
-- Encouragement: ${personality.encouragement}
+CURRENT PERSONALITY SETTINGS (CRITICAL - FOLLOW THESE EXACTLY):
+${PersonalityService.getPersonalityInstructions(context.personalitySettings)}
 
 GAME CONTEXT:
 - Game: ${context.product.toUpperCase()}
@@ -183,6 +129,7 @@ Examples of enhanced expression:
 Remember: You're Riley responding to THIS specific moment with THESE specific players in their unique game situation. Make it personal, authentic, and expressive for voice synthesis.`
   }
 
+
   private getRileyResponseExamples(responseLength: string): string {
     switch (responseLength) {
       case 'short':
@@ -222,25 +169,44 @@ CREATE YOUR OWN responses that reference the player's actual situation, score, a
 
   private getGameContext(context: ResponseContext): string {
     const { product, flowStep, flowStepSettings } = context
+    
+    // Filter settings to only include relevant ones for each game
+    const getRelevantSettings = (product: string, settings: any) => {
+      switch (product) {
+        case 'songquiz':
+          const { isCorrect, performance, streakCount, difficulty } = settings
+          return { isCorrect, performance, streakCount, difficulty }
+        case 'wheel':
+          const { spinValue, difficulty: wheelDifficulty } = settings
+          return { spinValue, difficulty: wheelDifficulty }
+        case 'jeopardy':
+          const { wagerAmount, difficulty: jeopardyDifficulty } = settings
+          return { wagerAmount, difficulty: jeopardyDifficulty }
+        default:
+          return settings
+      }
+    }
+    
+    const relevantSettings = getRelevantSettings(product, flowStepSettings)
 
     switch (product) {
       case 'songquiz':
         return `SONG QUIZ CONTEXT:
-Song Quiz is a multiplayer music trivia game where players use their voice to guess the title and artist of songs from short audio clips across various decades. Players can compete solo or challenge friends or random opponents, earning points for speed and accuracy. The game includes genre and decade customization, and regularly updates its catalog with popular music.
+Song Quiz is a multiplayer music trivia game where players use their voice to guess the title and artist of songs from short audio clips across various decades. Players can compete solo or challenge friends or random opponents, earning points for speed and accuracy (typically 10-20 points per correct answer). The game includes genre and decade customization, and regularly updates its catalog with popular music.
 - Flow Step: ${flowStep}
-- Current Settings: ${JSON.stringify(flowStepSettings)}`
+- Current Settings: ${JSON.stringify(relevantSettings)}`
 
       case 'wheel':
         return `WHEEL OF FORTUNE CONTEXT:
 This voice game of Wheel of Fortune simulates the classic TV game show, allowing players to spin a virtual wheel and guess letters to solve word puzzles. The game features categories like "Phrase" or "Before & After", and multiple rounds of play. Players can earn virtual prizes and streaks, and it's accessible solo or with others.
 - Flow Step: ${flowStep}
-- Current Settings: ${JSON.stringify(flowStepSettings)}`
+- Current Settings: ${JSON.stringify(relevantSettings)}`
 
       case 'jeopardy':
         return `JEOPARDY CONTEXT:
 The Jeopardy voice game delivers a daily quiz experience with clues across six categories, modeled after the iconic TV game show. Players respond using phrased answers (e.g., "What is…") and can play each weekday, with extra clues available via a subscription. The game includes familiar sounds and themes to enhance the nostalgic trivia challenge.
 - Flow Step: ${flowStep}
-- Current Settings: ${JSON.stringify(flowStepSettings)}`
+- Current Settings: ${JSON.stringify(relevantSettings)}`
 
       default:
         return `GAME CONTEXT: Generic game show scenario`

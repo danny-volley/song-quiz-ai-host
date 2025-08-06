@@ -9,35 +9,121 @@ export interface ContextExample {
 const songQuizExamples: { [key: string]: (settings?: FlowStepSettings) => ContextExample[] } = {
   round_result: (settings) => {
     const isCorrect = settings?.isCorrect
-    const baseExamples = [
-      // Player actions/answers
-      { id: '1', text: 'Shake It Off by Taylor Swift', category: 'player_action' as const },
-      { id: '2', text: 'Bohemian Rhapsody - Queen', category: 'player_action' as const },
-      { id: '3', text: 'Player guessed "Hotel California by Eagles"', category: 'player_action' as const },
-      { id: '4', text: 'Charlie answered "Rolling in the Deep by Adele"', category: 'player_action' as const },
+    
+    const correctExamples = [
+      // Player actions/answers - Correct
+      { id: '1', text: 'Charlie said "Shake It Off by Taylor Swift" right away', category: 'player_action' as const },
+      { id: '2', text: 'Player answered "Bohemian Rhapsody by Queen" as soon as it started', category: 'player_action' as const },
+      { id: '3', text: 'Charlie shouted "Hotel California by Eagles!"', category: 'player_action' as const },
+      { id: '4', text: 'Player responded with "Rolling in the Deep by Adele"', category: 'player_action' as const },
+      { id: '5', text: 'Charlie called out "Billie Jean by Michael Jackson"', category: 'player_action' as const },
+      { id: '6', text: 'Player got excited: "Don\'t Stop Believin\' by Journey!"', category: 'player_action' as const },
+      { id: '7', text: 'Charlie said "Sweet Child O\' Mine by Guns N\' Roses"', category: 'player_action' as const },
+      { id: '8', text: 'Player yelled "Thunderstruck by AC/DC!" with enthusiasm', category: 'player_action' as const },
+      { id: '9', text: 'Charlie answered "I Will Always Love You by Whitney Houston"', category: 'player_action' as const },
+      { id: '10', text: 'Player said "Stairway to Heaven by Led Zeppelin" clearly', category: 'player_action' as const },
+      { id: '11', text: 'Charlie responded "Purple Rain by Prince" after two seconds', category: 'player_action' as const },
+      { id: '12', text: 'Player called out "Smells Like Teen Spirit by Nirvana"', category: 'player_action' as const },
+      { id: '13', text: 'Charlie hummed along then said "Dancing Queen by ABBA"', category: 'player_action' as const },
+      { id: '14', text: 'Player quietly said "Imagine by John Lennon"', category: 'player_action' as const },
+      { id: '15', text: 'Charlie answered "Like a Rolling Stone by Bob Dylan"', category: 'player_action' as const },
       
-      // Game descriptions
-      { id: '5', text: 'Player was way off their guess', category: 'game_description' as const },
-      { id: '6', text: 'That was a tricky 90s hip-hop track that stumped everyone', category: 'game_description' as const },
-      { id: '7', text: 'Charlie nailed the artist but missed the song title', category: 'game_description' as const },
-      { id: '8', text: 'Perfect guess with only 3 seconds of the intro played', category: 'game_description' as const },
+      // Game descriptions - Correct
+      { id: '16', text: 'Player got it right within 3 seconds of the song starting', category: 'game_description' as const },
+      { id: '17', text: 'Charlie figured it out from just the opening chord', category: 'game_description' as const },
+      { id: '18', text: 'Player recognized this 1980s rock classic', category: 'game_description' as const },
+      { id: '19', text: 'Charlie knew this lesser-known B-side track', category: 'game_description' as const },
+      { id: '20', text: 'Player got both the artist and song title right', category: 'game_description' as const },
+      { id: '21', text: 'Charlie picked up on the lead singer\'s voice', category: 'game_description' as const },
+      { id: '22', text: 'Player got this 1990s hip-hop track spot-on', category: 'game_description' as const },
+      { id: '23', text: 'Charlie recognized this acoustic version', category: 'game_description' as const },
+      { id: '24', text: 'Player could tell this was the live recording', category: 'game_description' as const },
+      { id: '25', text: 'Charlie knew this country music hit', category: 'game_description' as const },
+      { id: '26', text: 'Player got this Motown classic right', category: 'game_description' as const },
+      { id: '27', text: 'Charlie spotted this remix version', category: 'game_description' as const },
+      { id: '28', text: 'Player knew this Beatles deep cut from 1967', category: 'game_description' as const },
+      { id: '29', text: 'Charlie remembered this one-hit wonder from the 90s', category: 'game_description' as const },
+      { id: '30', text: 'Player figured out this instrumental track', category: 'game_description' as const },
       
-      // Situations
-      { id: '9', text: 'Player is on a 3-song winning streak', category: 'situation' as const },
-      { id: '10', text: 'Close call - got it right just before time ran out', category: 'situation' as const }
+      // Situations - Correct
+      { id: '31', text: 'Charlie started to say one thing, then switched to the right answer', category: 'situation' as const },
+      { id: '32', text: 'Player got the answer out just as time was running out', category: 'situation' as const },
+      { id: '33', text: 'Charlie responded as soon as the song started', category: 'situation' as const },
+      { id: '34', text: 'Player waited 5 seconds, then gave the correct answer', category: 'situation' as const },
+      { id: '35', text: 'Charlie came back with the answer in under 2 seconds', category: 'situation' as const },
+      { id: '36', text: 'Player said "umm..." then gave the right answer', category: 'situation' as const },
+      { id: '37', text: 'Charlie got it with 8 seconds left on the clock', category: 'situation' as const },
+      { id: '38', text: 'Player squeezed the answer in before the 15-second limit', category: 'situation' as const },
+      { id: '39', text: 'Charlie jumped right in with the answer', category: 'situation' as const },
+      { id: '40', text: 'Player spoke clearly and got it right', category: 'situation' as const },
+      { id: '41', text: 'Charlie came through at the very last second', category: 'situation' as const },
+      { id: '42', text: 'Player was quick on the draw and got it right', category: 'situation' as const },
+      { id: '43', text: 'Charlie pulled through under pressure', category: 'situation' as const },
+      { id: '44', text: 'Player kept their cool and got the correct answer', category: 'situation' as const },
+      { id: '45', text: 'Charlie said "I think it\'s..." and was spot-on', category: 'situation' as const }
+    ]
+
+    const incorrectExamples = [
+      // Player actions/answers - Incorrect
+      { id: '1', text: 'Charlie said "Wonderwall by Oasis" but it was "Champagne Supernova"', category: 'player_action' as const },
+      { id: '2', text: 'Player answered "Stairway to Heaven by Led Zeppelin" when it was "Kashmir"', category: 'player_action' as const },
+      { id: '3', text: 'Charlie called out "That\'s Michael Jackson!" but it was Prince', category: 'player_action' as const },
+      { id: '4', text: 'Player guessed "Sweet Caroline by Neil Diamond" but it was "Love is an Open Door"', category: 'player_action' as const },
+      { id: '5', text: 'Charlie yelled "Bohemian Rhapsody!" but it was "We Are the Champions"', category: 'player_action' as const },
+      { id: '6', text: 'Player said "The Beatles" when it was The Rolling Stones', category: 'player_action' as const },
+      { id: '7', text: 'Charlie responded "Hotel California by Eagles" but it was "Take It Easy"', category: 'player_action' as const },
+      { id: '8', text: 'Player said "Thriller by Michael Jackson" but it was "Beat It"', category: 'player_action' as const },
+      { id: '9', text: 'Charlie went with "Nirvana" when it was Pearl Jam', category: 'player_action' as const },
+      { id: '10', text: 'Player guessed "Piano Man by Billy Joel" but it was "Uptown Girl"', category: 'player_action' as const },
+      { id: '11', text: 'Charlie exclaimed "That\'s Journey!" but it was Foreigner', category: 'player_action' as const },
+      { id: '12', text: 'Player answered "Dancing Queen by ABBA" when it was "Mamma Mia"', category: 'player_action' as const },
+      { id: '13', text: 'Charlie guessed "Purple Rain by Prince" but it was "1999"', category: 'player_action' as const },
+      { id: '14', text: 'Player said "Imagine by John Lennon" but it was "Let It Be"', category: 'player_action' as const },
+      { id: '15', text: 'Charlie answered "Fleetwood Mac" when it was The Eagles', category: 'player_action' as const },
+      
+      // Game descriptions - Incorrect
+      { id: '16', text: 'Player missed this 1990s hip-hop classic completely', category: 'game_description' as const },
+      { id: '17', text: 'Charlie got the artist right but wrong song from the same album', category: 'game_description' as const },
+      { id: '18', text: 'Player missed this Beatles track from "Abbey Road"', category: 'game_description' as const },
+      { id: '19', text: 'Charlie confused this with a different Queen song', category: 'game_description' as const },
+      { id: '20', text: 'Player guessed wrong on this lesser-known B-side track', category: 'game_description' as const },
+      { id: '21', text: 'Charlie mixed up two songs with similar guitar intros', category: 'game_description' as const },
+      { id: '22', text: 'Player confused the original with the more famous cover version', category: 'game_description' as const },
+      { id: '23', text: 'Charlie missed this acoustic version of a rock classic', category: 'game_description' as const },
+      { id: '24', text: 'Player got the decade right but wrong artist', category: 'game_description' as const },
+      { id: '25', text: 'Charlie confused this live version with the studio recording', category: 'game_description' as const },
+      { id: '26', text: 'Player missed this Motown classic from the 1960s', category: 'game_description' as const },
+      { id: '27', text: 'Charlie got fooled by this lesser-known remix version', category: 'game_description' as const },
+      { id: '28', text: 'Player mixed up two different songs by the same artist', category: 'game_description' as const },
+      { id: '29', text: 'Charlie missed this deep cut from a popular album', category: 'game_description' as const },
+      { id: '30', text: 'Player confused the title track with another song from the album', category: 'game_description' as const },
+      
+      // Situations - Incorrect
+      { id: '31', text: 'Charlie started to say the right answer, then switched to the wrong one', category: 'situation' as const },
+      { id: '32', text: 'Player hesitated for 10 seconds, then guessed incorrectly', category: 'situation' as const },
+      { id: '33', text: 'Charlie ran out of time while still deciding', category: 'situation' as const },
+      { id: '34', text: 'Player said "Um, is it..." then gave the wrong answer', category: 'situation' as const },
+      { id: '35', text: 'Charlie answered immediately but got it wrong', category: 'situation' as const },
+      { id: '36', text: 'Player\'s voice trailed off: "I think it\'s maybe..."', category: 'situation' as const },
+      { id: '37', text: 'Charlie sounded unsure and guessed incorrectly', category: 'situation' as const },
+      { id: '38', text: 'Player took too long and missed the time limit', category: 'situation' as const },
+      { id: '39', text: 'Charlie confidently gave the wrong answer', category: 'situation' as const },
+      { id: '40', text: 'Player mumbled their incorrect guess', category: 'situation' as const },
+      { id: '41', text: 'Charlie said "Oh wait, no..." but time was up', category: 'situation' as const },
+      { id: '42', text: 'Player gave two different answers and both were wrong', category: 'situation' as const },
+      { id: '43', text: 'Charlie paused too long before guessing incorrectly', category: 'situation' as const },
+      { id: '44', text: 'Player spoke too quietly and then got it wrong', category: 'situation' as const },
+      { id: '45', text: 'Charlie said "I have no idea" and made a wild guess', category: 'situation' as const }
     ]
 
     if (isCorrect === true) {
-      return baseExamples.filter((_, i) => [0, 1, 2, 3, 7, 8, 9].includes(i))
+      return correctExamples
     } else if (isCorrect === false) {
-      return baseExamples.filter((_, i) => [4, 5, 6].includes(i)).concat([
-        { id: '11', text: 'Player guessed "Wonderwall" but it was "Champagne Supernova"', category: 'player_action' },
-        { id: '12', text: 'Missed that classic Beatles track from the 60s', category: 'game_description' },
-        { id: '13', text: 'So close! Right artist, wrong song', category: 'situation' }
-      ])
+      return incorrectExamples
     }
     
-    return baseExamples
+    // Return all examples if isCorrect is not specified
+    return [...correctExamples, ...incorrectExamples]
   },
 
   streak_milestone: (settings) => {
@@ -112,6 +198,95 @@ const songQuizExamples: { [key: string]: (settings?: FlowStepSettings) => Contex
     { id: '9', text: 'Player refused to give up and it paid off big time', category: 'situation' as const },
     { id: '10', text: 'What a recovery! From 1 correct to nailing the final 3', category: 'situation' as const }
   ],
+
+  answer_steal: (settings) => {
+    const isCorrect = settings?.isCorrect
+    
+    const correctStealExamples = [
+      // Player actions - Successful steals
+      { id: '1', text: 'Ada said "Taylor Swift" and Maya successfully stole with "Shake It Off!"', category: 'player_action' as const },
+      { id: '2', text: 'Charlie guessed "Queen" then Jordan correctly completed with "Bohemian Rhapsody"', category: 'player_action' as const },
+      { id: '3', text: 'Emilio said "Hotel California" and Ada stole the points with "Eagles!"', category: 'player_action' as const },
+      { id: '4', text: 'Maya answered "Beatles" then Riley completed the steal with "Hey Jude"', category: 'player_action' as const },
+      { id: '5', text: 'Charlie said "Rolling Stones" and Emilio got the steal with "Paint It Black"', category: 'player_action' as const },
+      { id: '6', text: 'Ada guessed "Thriller" then Jordan successfully stole with "Michael Jackson!"', category: 'player_action' as const },
+      { id: '7', text: 'Charlie said "Led Zeppelin" and Maya completed the steal with "Stairway to Heaven"', category: 'player_action' as const },
+      { id: '8', text: 'Emilio answered "Don\'t Stop Believin\'" then Ada correctly stole with "Journey!"', category: 'player_action' as const },
+      { id: '9', text: 'Jordan said "Purple Rain" and Riley successfully added "Prince!"', category: 'player_action' as const },
+      { id: '10', text: 'Maya guessed "Nirvana" then Charlie got the steal with "Smells Like Teen Spirit"', category: 'player_action' as const },
+      
+      // Game descriptions - Successful steals
+      { id: '11', text: 'Great teamwork steal on this 1980s rock classic', category: 'game_description' as const },
+      { id: '12', text: 'Fast steal that completed the correct answer', category: 'game_description' as const },
+      { id: '13', text: 'Second player got the points with the missing artist', category: 'game_description' as const },
+      { id: '14', text: 'Smart steal on this Beatles hit', category: 'game_description' as const },
+      { id: '15', text: 'Good steal with the right song title', category: 'game_description' as const },
+      { id: '16', text: 'Clever steal on this classic Motown track', category: 'game_description' as const },
+      { id: '17', text: 'Player 2 finished the answer and took the points', category: 'game_description' as const },
+      { id: '18', text: 'Well-timed steal on this 90s hit', category: 'game_description' as const },
+      { id: '19', text: 'Second player knew exactly which song that was', category: 'game_description' as const },
+      { id: '20', text: 'Steal worked out on this classic rock anthem', category: 'game_description' as const },
+      
+      // Situations - Successful steals
+      { id: '21', text: 'Second player jumped in within 2 seconds of the partial answer', category: 'situation' as const },
+      { id: '22', text: 'Perfect steal timing - got it before the first player could complete it', category: 'situation' as const },
+      { id: '23', text: 'Second player was ready and waiting to complete that answer', category: 'situation' as const },
+      { id: '24', text: 'Quick steal happened while first player was still thinking', category: 'situation' as const },
+      { id: '25', text: 'Second player confidently completed the partial guess', category: 'situation' as const },
+      { id: '26', text: 'Steal completed just as the first player paused', category: 'situation' as const },
+      { id: '27', text: 'Second player spoke up immediately after hearing the artist name', category: 'situation' as const },
+      { id: '28', text: 'Perfect steal execution - no hesitation from the second player', category: 'situation' as const },
+      { id: '29', text: 'Second player jumped on that partial answer instantly', category: 'situation' as const },
+      { id: '30', text: 'Quick steal while the first player was still speaking', category: 'situation' as const }
+    ]
+
+    const failedStealExamples = [
+      // Player actions - Failed steals
+      { id: '1', text: 'Ada said "Taylor Swift" then Maya failed the steal with "Bad Blood" but it was "Shake It Off"', category: 'player_action' as const },
+      { id: '2', text: 'Charlie guessed "Queen" and Jordan attempted to steal with "We Will Rock You" but it was "Bohemian Rhapsody"', category: 'player_action' as const },
+      { id: '3', text: 'Emilio said "Hotel California" and Ada tried to steal with "Fleetwood Mac" instead of "Eagles"', category: 'player_action' as const },
+      { id: '4', text: 'Maya answered "Beatles" then Riley\'s steal attempt "Yesterday" was wrong - it was "Hey Jude"', category: 'player_action' as const },
+      { id: '5', text: 'Charlie said "Rolling Stones" and Emilio\'s steal failed with "Satisfaction"', category: 'player_action' as const },
+      { id: '6', text: 'Ada guessed "Thriller" then Jordan failed the steal with "Prince!" instead of "Michael Jackson"', category: 'player_action' as const },
+      { id: '7', text: 'Charlie said "Led Zeppelin" and Maya\'s steal attempt "Black Dog" was wrong - it was "Stairway to Heaven"', category: 'player_action' as const },
+      { id: '8', text: 'Emilio answered "Don\'t Stop Believin\'" then Ada unsuccessfully tried "Boston!" instead of "Journey"', category: 'player_action' as const },
+      { id: '9', text: 'Jordan said "Purple Rain" and Riley\'s steal failed with "1999" - it was the artist "Prince"', category: 'player_action' as const },
+      { id: '10', text: 'Maya guessed "Nirvana" then Charlie\'s steal attempt failed with "Come As You Are"', category: 'player_action' as const },
+      
+      // Game descriptions - Failed steals
+      { id: '11', text: 'Steal attempt failed - wrong artist for this 1980s classic', category: 'game_description' as const },
+      { id: '12', text: 'Unsuccessful steal - second player guessed wrong song by same artist', category: 'game_description' as const },
+      { id: '13', text: 'Failed steal attempt - got a different song from the same album', category: 'game_description' as const },
+      { id: '14', text: 'Steal didn\'t work - wrong Beatles song guess', category: 'game_description' as const },
+      { id: '15', text: 'Failed steal - second player confused it with another hit by that artist', category: 'game_description' as const },
+      { id: '16', text: 'Second player mixed up the artist on this Motown classic', category: 'game_description' as const },
+      { id: '17', text: 'Failed completion - wrong song title guess', category: 'game_description' as const },
+      { id: '18', text: 'Steal attempt missed on this 90s hit', category: 'game_description' as const },
+      { id: '19', text: 'Second player got the wrong artist for that song', category: 'game_description' as const },
+      { id: '20', text: 'Steal failed - confused with a similar-sounding band', category: 'game_description' as const },
+      
+      // Situations - Failed steals
+      { id: '21', text: 'Second player jumped in too quickly and got it wrong', category: 'situation' as const },
+      { id: '22', text: 'Steal attempt failed - second player was overconfident', category: 'situation' as const },
+      { id: '23', text: 'Second player hesitated then guessed incorrectly', category: 'situation' as const },
+      { id: '24', text: 'Failed steal - second player mixed up similar artists', category: 'situation' as const },
+      { id: '25', text: 'Second player tried to steal but got the completion wrong', category: 'situation' as const },
+      { id: '26', text: 'Steal failed when second player said the wrong song title', category: 'situation' as const },
+      { id: '27', text: 'Second player spoke up but gave an incorrect answer', category: 'situation' as const },
+      { id: '28', text: 'Failed steal - second player guessed another song by same artist', category: 'situation' as const },
+      { id: '29', text: 'Second player jumped on the partial answer but got it wrong', category: 'situation' as const },
+      { id: '30', text: 'Steal attempt backfired with an incorrect completion', category: 'situation' as const }
+    ]
+
+    if (isCorrect === true) {
+      return correctStealExamples
+    } else if (isCorrect === false) {
+      return failedStealExamples
+    }
+    
+    // Return all examples if isCorrect is not specified
+    return [...correctStealExamples, ...failedStealExamples]
+  },
 
   // Default for any other flow steps
   default: () => [

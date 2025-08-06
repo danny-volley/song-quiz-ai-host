@@ -33,6 +33,13 @@ export const products: Product[] = [
         description: 'Player recovering from wrong answers or breaking slumps',
         type: 'comeback_moment',
         hasSettings: false
+      },
+      {
+        id: 'answer_steal',
+        name: 'Answer Steal',
+        description: 'One player guesses partial answer, another player completes it to steal points',
+        type: 'answer_steal',
+        hasSettings: true
       }
     ]
   },
