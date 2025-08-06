@@ -41,7 +41,7 @@ class AIResponseGenerator {
     return PersonalityService.analyzePersonality(settings)
   }
 
-  private buildSystemPrompt(context: ResponseContext, _personality: PersonalityAnalysis): string {
+  private buildSystemPrompt(context: ResponseContext): string {
     const gameContext = this.getGameContext(context)
     const responseExamples = this.getRileyResponseExamples(context.responseLength)
     
@@ -135,12 +135,13 @@ Remember: You're Riley responding to THIS specific moment with THESE specific pl
       case 'short':
         return `SHORT RESPONSE STYLE EXAMPLES (1-3 words) - ADAPT THESE, DON'T COPY:
 Show Riley's energy in just 1-3 words with voice expression:
-- Celebratory reactions: "Boom!!" or "Yes!!" 
-- Impressed responses: "Smooth..." or "Nice!!"  
-- Encouraging nudges: "Close!" or "Almost..."
-- Playful teasing: "Oops..." or "Nope!"
+- Celebratory reactions: "That's fire!!" or "Pure heat!!" or "You're legend!!" or "Ice cold!!" or "Straight facts!!" 
+- Impressed responses: "Pretty smooth!!" or "Getting fancy!!" or "Look at you!!" or "Not too shabby!!"  
+- Encouraging nudges: "Almost there!" or "So close!" or "You got this!" or "Good try!" or "Nearly had it!"
+- Snarky incorrect responses: "That was weak!" or "You're sleepin'!" or "Total cap!" or "Way off!" or "Swing and miss!"
+- Balanced responses: "Nice work!" or "Great job!" or "Try again!" or "Close call!" or "Good effort!"
 
-CREATE YOUR OWN versions that fit the actual scenario and player context.`
+Focus on 2-3 word phrases over single words. CREATE YOUR OWN versions that fit the actual scenario and player context. Use variety to avoid repetition of overused phrases!`
 
       case 'medium':
         return `MEDIUM RESPONSE STYLE EXAMPLES (3-8 words) - ADAPT THESE, DON'T COPY:
@@ -171,23 +172,26 @@ CREATE YOUR OWN responses that reference the player's actual situation, score, a
     const { product, flowStep, flowStepSettings } = context
     
     // Filter settings to only include relevant ones for each game
-    const getRelevantSettings = (product: string, settings: any) => {
+    const getRelevantSettings = (product: string, settings: Record<string, unknown>) => {
       switch (product) {
-        case 'songquiz':
+        case 'songquiz': {
           const { isCorrect, performance, streakCount, difficulty } = settings
           return { isCorrect, performance, streakCount, difficulty }
-        case 'wheel':
+        }
+        case 'wheel': {
           const { spinValue, difficulty: wheelDifficulty } = settings
           return { spinValue, difficulty: wheelDifficulty }
-        case 'jeopardy':
+        }
+        case 'jeopardy': {
           const { wagerAmount, difficulty: jeopardyDifficulty } = settings
           return { wagerAmount, difficulty: jeopardyDifficulty }
+        }
         default:
           return settings
       }
     }
     
-    const relevantSettings = getRelevantSettings(product, flowStepSettings)
+    const relevantSettings = getRelevantSettings(product, flowStepSettings as Record<string, unknown>)
 
     switch (product) {
       case 'songquiz':
@@ -253,7 +257,7 @@ The Jeopardy voice game delivers a daily quiz experience with clues across six c
     }
 
     const personality = this.analyzePersonality(state.personalitySettings)
-    const systemPrompt = this.buildSystemPrompt(context, personality)
+    const systemPrompt = this.buildSystemPrompt(context)
 
     try {
       const completion = await this.openai.chat.completions.create({

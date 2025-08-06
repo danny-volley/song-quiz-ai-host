@@ -272,14 +272,14 @@ ${this.getPersonalityCombinationEffect(settings)}`
       // Playful side (1-2)
       const playfulWords = {
         1: [
-          ['OMG', 'Woo-hoo', 'Yay', 'Super duper', 'Totally awesome'],
-          ['Amazing', 'Incredible', 'So cool', 'Wonderful', 'Fantastic'],
-          ['Brilliant', 'Perfect', 'Stunning', 'Magnificent', 'Outstanding']
-        ], // Very playful - 3 different sets
+          ['OMG', 'Woo-hoo', 'Yay', 'Super duper', 'Totally awesome', 'Bars!', 'Legend!', 'Heat!'],
+          ['Amazing', 'Incredible', 'So cool', 'Wonderful', 'Fantastic', 'Mic-drop!', 'Facts!', 'Cold!'],
+          ['Brilliant', 'Perfect', 'Stunning', 'Magnificent', 'Outstanding', 'Platinum!', 'No-cap!', 'Remix!']
+        ], // Very playful - 3 different sets with modern slang
         2: [
-          ['Awesome', 'Fantastic', 'Great job', 'Nice work', 'Sweet'],
-          ['Excellent', 'Terrific', 'Well done', 'Good stuff', 'Cool'],
-          ['Super', 'Lovely', 'Nice one', 'Good going', 'Solid']
+          ['Awesome', 'Fantastic', 'Great job', 'Nice work', 'Sweet', 'Nice!', 'Cool beans'],
+          ['Excellent', 'Terrific', 'Well done', 'Good stuff', 'Cool', 'Solid work', 'That works'],
+          ['Super', 'Lovely', 'Nice one', 'Good going', 'Solid', 'Pretty good', 'Not bad']
         ]  // Playful - 3 different sets
       }
       
@@ -316,19 +316,25 @@ ${this.getPersonalityCombinationEffect(settings)}`
             'Great': 'Alright then',
             'Good': 'Look who\'s showing off',
             'Nice': 'That\'s one way to do it',
-            'Awesome': 'Someone\'s been practicing'
+            'Awesome': 'Someone\'s been practicing',
+            'Oops': 'Weak!',
+            'Wrong': 'Offbeat!'
           },
           {
             'Great': 'Oh, getting fancy now',
             'Good': 'Not too shabby',
             'Nice': 'I see what you did there',
-            'Awesome': 'Showing some skill there'
+            'Awesome': 'Showing some skill there',
+            'Oops': 'Muted!',
+            'Wrong': 'Cap!'
           },
           {
             'Great': 'Look at that',
             'Good': 'There we go',
             'Nice': 'Decent work',
-            'Awesome': 'Pretty smooth'
+            'Awesome': 'Pretty smooth',
+            'Oops': 'Washed!',
+            'Wrong': 'Flop!'
           }
         ],
         5: [
@@ -336,19 +342,25 @@ ${this.getPersonalityCombinationEffect(settings)}`
             'Great': 'How sophisticated',
             'Good': 'My, my',
             'Nice': 'Well aren\'t we special',
-            'Awesome': 'Look at you go'
+            'Awesome': 'Look at you go',
+            'Oops': 'Trash!',
+            'Wrong': 'Sleepin\'!'
           },
           {
             'Great': 'That\'s... something',
             'Good': 'Sure thing, superstar',
             'Nice': 'If you say so',
-            'Awesome': 'Aren\'t you just brilliant'
+            'Awesome': 'Aren\'t you just brilliant',
+            'Oops': 'Weak sauce',
+            'Wrong': 'That\'s cap'
           },
           {
             'Great': 'How delightful',
             'Good': 'Thrilling',
             'Nice': 'Riveting',
-            'Awesome': 'Absolutely groundbreaking'
+            'Awesome': 'Absolutely groundbreaking',
+            'Oops': 'Big yikes',
+            'Wrong': 'Not it'
           }
         ]
       }
@@ -471,5 +483,69 @@ ${this.getPersonalityCombinationEffect(settings)}`
     }
     
     return response
+  }
+
+  /**
+   * Generate varied short responses to prevent repetition
+   */
+  static generateShortResponse(isCorrect: boolean, personality: PersonalitySettings): string {
+    const { playfulSnarky } = personality
+
+    if (isCorrect) {
+      // Correct responses based on personality
+      if (playfulSnarky <= 2) {
+        // Playful correct responses - mix of 1-3 words
+        const playfulCorrect = [
+          'That\'s fire!', 'You\'re legend!', 'Pure heat!', 'Mic-drop moment!', 'Straight facts!', 'Ice cold!', 
+          'That\'s platinum!', 'No cap!', 'Nice remix!', 'Yes indeed!', 'Totally perfect!', 'So amazing!',
+          'Bars!', 'Legend!', 'Heat!', 'Facts!', 'Cold!', 'Perfect!'
+        ]
+        return playfulCorrect[Math.floor(Math.random() * playfulCorrect.length)]
+      } else if (playfulSnarky >= 4) {
+        // Snarky correct responses with attitude
+        const snarkyCorrect = [
+          'Look at you!', 'Getting fancy!', 'Pretty smooth!', 'Not too shabby!', 
+          'There we go!', 'Fair enough!', 'That\'ll work!', 'I see you!',
+          'Alright then!', 'Decent work!', 'Color me impressed!', 'Well well!'
+        ]
+        return snarkyCorrect[Math.floor(Math.random() * snarkyCorrect.length)]
+      } else {
+        // Balanced correct responses
+        const balancedCorrect = [
+          'Nice work!', 'Great job!', 'Solid choice!', 'Well done!', 
+          'That works!', 'Good stuff!', 'Way to go!', 'You got it!',
+          'Nice!', 'Great!', 'Solid!', 'Sweet!'
+        ]
+        return balancedCorrect[Math.floor(Math.random() * balancedCorrect.length)]
+      }
+    } else {
+      // Incorrect responses based on personality
+      if (playfulSnarky <= 2) {
+        // Playful incorrect responses - encouraging
+        const playfulIncorrect = [
+          'Almost there!', 'So close!', 'Next time!', 'Try again!', 'You got this!',
+          'Not quite!', 'Close one!', 'Keep going!', 'Good try!', 'Nearly had it!',
+          'Oops!', 'Almost!', 'Close!'
+        ]
+        return playfulIncorrect[Math.floor(Math.random() * playfulIncorrect.length)]
+      } else if (playfulSnarky >= 4) {
+        // Snarky incorrect responses with modern slang - reduced "Offbeat"
+        const snarkyIncorrect = [
+          'That was weak!', 'You\'re sleepin\'!', 'Total cap!', 'Pretty washed!', 
+          'Got muted!', 'That flopped!', 'Bit trashy!', 'Way off!',
+          'Not it!', 'Big yikes!', 'Swing and miss!', 'Rough one!',
+          'Flop!', 'Cap!', 'Weak!', 'Trash!', 'Nope!'
+        ]
+        return snarkyIncorrect[Math.floor(Math.random() * snarkyIncorrect.length)]
+      } else {
+        // Balanced incorrect responses
+        const balancedIncorrect = [
+          'Not quite!', 'Try again!', 'Almost there!', 'So close!', 'Good try!',
+          'Next time!', 'Keep trying!', 'Not today!', 'Close call!', 'Good effort!',
+          'Close!', 'Almost!', 'Nope!'
+        ]
+        return balancedIncorrect[Math.floor(Math.random() * balancedIncorrect.length)]
+      }
+    }
   }
 }

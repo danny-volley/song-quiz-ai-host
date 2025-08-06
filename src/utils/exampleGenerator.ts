@@ -6,6 +6,13 @@ export interface ContextExample {
   category: 'player_action' | 'game_description' | 'situation'
 }
 
+export interface DetailedContextExample {
+  id: string
+  title: string
+  description: string
+  text: string
+}
+
 const songQuizExamples: { [key: string]: (settings?: FlowStepSettings) => ContextExample[] } = {
   round_result: (settings) => {
     const isCorrect = settings?.isCorrect
@@ -513,6 +520,89 @@ export function getRandomExample(
   settings?: FlowStepSettings
 ): ContextExample {
   const examples = generateExamples(product, flowStep, settings)
+  const randomIndex = Math.floor(Math.random() * examples.length)
+  return examples[randomIndex]
+}
+
+// Detailed Context Examples for longer game history
+const songQuizDetailedContextExamples: DetailedContextExample[] = [
+  {
+    id: '1',
+    title: '80s to 90s Recovery',
+    description: 'Player bounced back after struggling with previous game',
+    text: `Previous Game: Charlie lost the 80s playlist game with 2 of 5 correct answers. Struggled with "Don't You (Forget About Me)" by Simple Minds and "Blue Monday" by New Order.
+
+Current Game: 90s playlist, Round 3 of 5. Charlie has gotten 3 correct and 0 incorrect so far. Previous correct answers were "Smells Like Teen Spirit" by Nirvana, "Creep" by Radiohead, and "Wonderwall" by Oasis.
+
+Recent Riley responses: "Nice recovery from last game!", "You're finding your groove now!", "That's more like the Charlie I know!"
+
+Charlie just heard the opening guitar riff and shouted "Black" by Pearl Jam but the song was actually "Alive" by Pearl Jam.`
+  },
+  {
+    id: '2',
+    title: 'Hot Streak Continues',
+    description: 'Player on fire across multiple games',
+    text: `Previous Game: Maya dominated the Classic Rock playlist with 4 of 5 correct, only missing "More Than a Feeling" by Boston.
+
+Current Game: Pop Hits 2000s, Round 4 of 5. Maya has a perfect 4 correct, 0 incorrect streak going. Previous answers: "Hey Ya!" by OutKast, "Crazy" by Gnarls Barkley, "Hips Don't Lie" by Shakira, and "SexyBack" by Justin Timberlake.
+
+Recent Riley responses: "You're absolutely on fire!", "Someone's been studying their music!", "Perfect game so far - can you make it 5 for 5?"
+
+Maya confidently said "I Kissed a Girl by Katy Perry" within 2 seconds of the song starting and nailed it.`
+  },
+  {
+    id: '3',
+    title: 'Multiplayer Comeback Battle',
+    description: 'Tight competition between two players',
+    text: `Previous Game: Emilio beat Jordan 3-2 in the Hip-Hop Classics playlist. Jordan missed "Rapper's Delight" and "The Message" but got the others.
+
+Current Game: Alternative Rock 90s, Multiplayer. Current scores - Emilio: 18 points (2 correct), Jordan: 15 points (2 correct, 1 steal attempt failed). 
+
+Game History: Jordan missed stealing "Loser" by Beck from Emilio, then both got "Under the Bridge" and "Jane Says" by Jane's Addiction correct.
+
+Recent Riley responses: "This is getting competitive!", "Jordan's not giving up easily!", "Both of you know your alternative rock!"
+
+Jordan just attempted to steal after Emilio said "Stone Temple..." but Jordan guessed "Interstate Love Song" when it was actually "Plush" by Stone Temple Pilots.`
+  },
+  {
+    id: '4',
+    title: 'Learning from Mistakes',
+    description: 'Player showing improvement after rough start',
+    text: `Previous Game: Ada struggled with Country Hits, finishing 1 of 5 correct. Only got "Friends in Low Places" by Garth Brooks, missed everything else including "Mammas Don't Let Your Babies Grow Up to Be Cowboys."
+
+Current Game: Pop Rock playlist, Round 2 of 5. Ada started slow missing "Don't Stop Me Now" by Queen, but just got "Sweet Child O' Mine" by Guns N' Roses correct.
+
+Recent Riley responses: "Don't worry about the rough start!", "There we go - you're getting warmed up!", "Much better! You know your rock classics!"
+
+Ada is being more careful now, taking 4-5 seconds to think before answering. She just heard piano intro and said "Tiny Dancer by Elton John" and got it right.`
+  },
+  {
+    id: '5',
+    title: 'Genre Switch Challenge',
+    description: 'Player adapting to completely different music style',
+    text: `Previous Game: Riley dominated Metal playlist with 5 of 5 correct - "Master of Puppets," "Paranoid," "Ace of Spades," "Run to the Hills," and "Breaking the Law."
+
+Current Game: Folk/Acoustic playlist (complete genre switch). Round 1 of 5. This is Riley's weak spot - already missed "The Sound of Silence" by Simon & Garfunkel, guessing it was by Bob Dylan.
+
+Recent Riley responses: "Big genre switch here!", "Metal to folk - that's quite a jump!", "Don't worry, different muscles needed for this one!"
+
+Riley just heard harmonica intro and hesitantly said "Blowin' in the Wind... by Bob Dylan?" and got it correct, showing signs of adapting to the new genre.`
+  }
+]
+
+export function getDetailedContextExamples(product: ProductType = 'songquiz'): DetailedContextExample[] {
+  // For now, only Song Quiz examples
+  if (product === 'songquiz') {
+    return songQuizDetailedContextExamples
+  }
+  
+  return []
+}
+
+export function getRandomDetailedContextExample(product: ProductType = 'songquiz'): DetailedContextExample | null {
+  const examples = getDetailedContextExamples(product)
+  if (examples.length === 0) return null
+  
   const randomIndex = Math.floor(Math.random() * examples.length)
   return examples[randomIndex]
 }

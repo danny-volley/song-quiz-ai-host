@@ -18,22 +18,21 @@ class ResponseGenerator {
 
   private generateResponseText(
     inputText: string, 
-    context: ResponseContext, 
-    personality: PersonalityAnalysis
+    context: ResponseContext
   ): string {
     // Base response templates based on game type and personality
-    const templates = this.getResponseTemplates(context, personality)
+    const templates = this.getResponseTemplates(context)
     
     // Select appropriate template based on flow step and context
     const template = this.selectTemplate(templates, context)
     
     // Generate personalized response
-    const response = this.personalizeResponse(template, inputText, context, personality)
+    const response = this.personalizeResponse(template, inputText, context)
     
     return response
   }
 
-  private getResponseTemplates(context: ResponseContext, _personality: PersonalityAnalysis) {
+  private getResponseTemplates(context: ResponseContext) {
     const { product } = context
 
     const baseTemplates = {
@@ -91,37 +90,40 @@ class ResponseGenerator {
     }
 
     // Modify templates based on personality
-    return this.adjustTemplatesForPersonality(baseTemplates[product], _personality)
+    return this.adjustTemplatesForPersonality(baseTemplates[product])
   }
 
-  private adjustTemplatesForPersonality(templates: any, _personality: PersonalityAnalysis) {
+  private adjustTemplatesForPersonality(templates: Record<string, unknown>) {
     // This would contain logic to modify response templates based on personality traits
     // For now, return as-is - this is where the real AI personality customization would happen
     return templates
   }
 
-  private selectTemplate(templates: any, context: ResponseContext): string {
+  private selectTemplate(templates: Record<string, unknown>, context: ResponseContext): string {
     // Select appropriate template based on flow step and settings
     const { flowStep, flowStepSettings } = context
     
     if (flowStep === 'round_result') {
+      const correctTemplates = templates.correct as string[] || []
+      const incorrectTemplates = templates.incorrect as string[] || []
       return flowStepSettings.isCorrect 
-        ? templates.correct?.[0] || "Great job!"
-        : templates.incorrect?.[0] || "Not quite, but keep trying!"
+        ? correctTemplates[0] || "Great job!"
+        : incorrectTemplates[0] || "Not quite, but keep trying!"
     }
     
     if (flowStep === 'streak_milestone') {
-      return templates.streak?.[0] || "Amazing streak!"
+      const streakTemplates = templates.streak as string[] || []
+      return streakTemplates[0] || "Amazing streak!"
     }
     
-    return templates.correct?.[0] || "Well done!"
+    const correctTemplates = templates.correct as string[] || []
+    return correctTemplates[0] || "Well done!"
   }
 
   private personalizeResponse(
     template: string, 
     inputText: string, 
-    context: ResponseContext, 
-    _personality: PersonalityAnalysis
+    context: ResponseContext
   ): string {
     let response = template
 
@@ -140,7 +142,7 @@ class ResponseGenerator {
     response = this.addContextDetails(response, inputText, context)
 
     // Adjust length based on response length setting
-    response = this.adjustResponseLength(response, context.responseLength)
+    response = this.adjustResponseLength(response, context.responseLength, context)
 
     return response
   }
@@ -156,9 +158,13 @@ class ResponseGenerator {
     return response
   }
 
-  private adjustResponseLength(response: string, length: 'short' | 'medium' | 'long'): string {
+  private adjustResponseLength(response: string, length: 'short' | 'medium' | 'long', context: ResponseContext): string {
     if (length === 'short') {
-      return response.split('.')[0] + '.'
+      // Always use PersonalityService for varied short responses to prevent repetition
+      const isCorrect = /great|good|nice|perfect|awesome|excellent|correct|right|yes|nailed|spot on/i.test(response)
+      
+      // Use PersonalityService for all short responses to ensure variety
+      return PersonalityService.generateShortResponse(isCorrect, context.personalitySettings)
     } else if (length === 'long') {
       return response + " Keep up the great energy and let's see what comes next!"
     }
@@ -199,7 +205,7 @@ class ResponseGenerator {
     }
 
     const personality = this.analyzePersonality(state.personalitySettings)
-    const responseText = this.generateResponseText(inputText, context, personality)
+    const responseText = this.generateResponseText(inputText, context)
     const processingTime = Date.now() - startTime
     const metadata = this.calculateMetadata(responseText, processingTime)
 

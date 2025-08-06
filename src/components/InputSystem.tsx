@@ -3,7 +3,7 @@ import type { ProductType, SandboxState, GeneratedResponse } from '../types'
 import { useVoiceRecording } from '../hooks/useVoiceRecording'
 import { responseGenerator } from '../services/responseGenerator'
 import { aiResponseGenerator } from '../services/aiResponseGenerator'
-import { getRandomExample } from '../utils/exampleGenerator'
+import { getRandomExample, getRandomDetailedContextExample } from '../utils/exampleGenerator'
 
 interface InputSystemProps {
   selectedProduct: ProductType | null
@@ -32,7 +32,7 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
     clearRecording
   } = useVoiceRecording()
 
-  const characterLimit = 500
+  const characterLimit = 1500
 
   const handleProvideExample = () => {
     if (!selectedProduct || !sandboxState.selectedFlowStep) return
@@ -44,6 +44,15 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
     )
     
     onInputChange(example.text)
+  }
+
+  const handleContextExample = () => {
+    if (!selectedProduct) return
+    
+    const example = getRandomDetailedContextExample(selectedProduct)
+    if (example) {
+      onInputChange(example.text)
+    }
   }
 
   // Update input text when transcription is available
@@ -227,7 +236,7 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
               }
               disabled={!selectedProduct}
               className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm resize-none"
-              rows={4}
+              rows={6}
               maxLength={characterLimit}
             />
             <div className="absolute bottom-3 right-3 text-xs text-gray-400">
@@ -235,16 +244,24 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
             </div>
           </div>
 
-          {/* Three-column layout: Provide Example | Submit Button | Generate Voice */}
+          {/* Three-column layout: Example Buttons | Submit Button | Generate Voice */}
           <div className="flex items-center justify-between">
-            {/* Left: Provide Example Button */}
-            <div className="flex-1 flex justify-start">
+            {/* Left: Example Buttons */}
+            <div className="flex-1 flex flex-col gap-2 justify-start">
               {selectedProduct && sandboxState.selectedFlowStep && (
                 <button
                   onClick={handleProvideExample}
-                  className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors font-medium text-sm flex items-center gap-2"
+                  className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors font-medium text-sm flex items-center gap-2 w-fit"
                 >
-                  💡 Provide Example
+                  💡 Simple Example
+                </button>
+              )}
+              {selectedProduct && (
+                <button
+                  onClick={handleContextExample}
+                  className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors font-medium text-sm flex items-center gap-2 w-fit"
+                >
+                  📚 Context Examples
                 </button>
               )}
             </div>
