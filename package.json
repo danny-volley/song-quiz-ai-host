@@ -16,6 +16,7 @@
     "deploy": "npm run build && npx vercel --prod"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.58.0",
     "@livekit/components-core": "^0.12.9",
     "@livekit/components-react": "^2.9.14",
     "@tailwindcss/vite": "^4.1.8",

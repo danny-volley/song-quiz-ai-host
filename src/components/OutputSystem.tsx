@@ -19,6 +19,7 @@ export default function OutputSystem({
   autoPlayTTS = true 
 }: OutputSystemProps) {
   const [showDetails, setShowDetails] = useState(false)
+  const [showInputContext, setShowInputContext] = useState(false)
   const [ttsData, setTTSData] = useState<TTSMetadata | null>(null)
 
   // Generate TTS when new response arrives
@@ -385,6 +386,89 @@ export default function OutputSystem({
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Collapsible Input Context Section */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <button
+          onClick={() => setShowInputContext(!showInputContext)}
+          className="w-full px-6 py-3 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700">📋 Input Context Used</span>
+            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+              {response.input.text.length} characters
+            </span>
+          </div>
+          <div className={`transform transition-transform ${showInputContext ? 'rotate-180' : ''}`}>
+            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </button>
+        
+        {showInputContext && (
+          <div className="px-6 pb-4 border-t border-gray-100">
+            <div className="bg-gray-50 rounded-lg p-4 mt-4">
+              <div className="space-y-3">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm font-medium text-gray-700">Original Input Text:</span>
+                    <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded border">
+                      {response.input.mode === 'voice' ? '🎤 Voice Input' : '📝 Text Input'}
+                    </span>
+                  </div>
+                  <div className="bg-white rounded border p-3">
+                    <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
+                      "{response.input.text}"
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-gray-600">
+                  <div className="space-y-1">
+                    <div><strong>Product:</strong> {response.context.product}</div>
+                    <div><strong>Game Mode:</strong> {response.context.gameMode}</div>
+                    <div><strong>Flow Step:</strong> {response.context.flowStep.replace('_', ' ')}</div>
+                  </div>
+                  <div className="space-y-1">
+                    <div><strong>Response Length:</strong> {response.context.responseLength}</div>
+                    <div><strong>Players:</strong> {response.context.players.map(p => `${p.name} (${p.score}pts)`).join(', ')}</div>
+                    <div><strong>Generated:</strong> {formatTimestamp(response.timestamp)}</div>
+                  </div>
+                </div>
+
+                {/* Flow Step Settings if any */}
+                {Object.keys(response.context.flowStepSettings).length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <div className="text-sm font-medium text-gray-700 mb-2">Flow Step Settings:</div>
+                    <div className="bg-white rounded border p-2">
+                      <div className="text-xs text-gray-600 space-y-1">
+                        {Object.entries(response.context.flowStepSettings).map(([key, value]) => (
+                          <div key={key}>
+                            <strong>{key}:</strong> {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value)}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Personality Settings */}
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <div className="text-sm font-medium text-gray-700 mb-2">Personality Settings:</div>
+                  <div className="bg-white rounded border p-2">
+                    <div className="text-xs text-gray-600 space-y-1">
+                      <div><strong>Playful ↔ Snarky:</strong> {response.context.personalitySettings.playfulSnarky}/5</div>
+                      <div><strong>Excitement Style:</strong> {response.context.personalitySettings.excitementStyle}/5</div>
+                      <div><strong>Encouragement Style:</strong> {response.context.personalitySettings.encouragementStyle}/5</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}

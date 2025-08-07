@@ -1,4 +1,3 @@
-import OpenAI from 'openai'
 import type { 
   SandboxState, 
   GeneratedResponse, 
@@ -7,30 +6,13 @@ import type {
   PersonalitySettings 
 } from '../types'
 import { PersonalityService } from './personalityService'
+import { MultiAIProvider, type AIProvider, type AIModel } from './aiProviders'
 
 class AIResponseGenerator {
-  private openai: OpenAI
-  private isConfigured: boolean = false
-  private model: string = 'gpt-3.5-turbo'
+  private aiProvider: MultiAIProvider
 
   constructor() {
-    // Check for API key in environment variables
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY || process.env.OPENAI_API_KEY
-    
-    // Get model from environment or use default
-    this.model = import.meta.env.VITE_OPENAI_MODEL || process.env.OPENAI_MODEL || 'gpt-3.5-turbo'
-    
-    if (apiKey && apiKey !== 'your-openai-api-key-here') {
-      this.openai = new OpenAI({
-        apiKey,
-        dangerouslyAllowBrowser: true // Enable client-side usage
-      })
-      this.isConfigured = true
-    } else {
-      // Create a placeholder instance
-      this.openai = {} as OpenAI
-      this.isConfigured = false
-    }
+    this.aiProvider = new MultiAIProvider()
   }
 
   private generateId(): string {
@@ -236,10 +218,8 @@ The Jeopardy voice game delivers a daily quiz experience with clues across six c
     state: SandboxState,
     generateVoice: boolean = true
   ): Promise<GeneratedResponse> {
-    const startTime = Date.now()
-
-    if (!this.isConfigured) {
-      throw new Error('OpenAI API key not configured. Please add your API key to the .env file.')
+    if (!this.isReady()) {
+      throw new Error('AI provider not configured. Please add your API key to the .env file.')
     }
 
     if (!state.selectedProduct || !state.selectedFlowStep) {
@@ -260,18 +240,15 @@ The Jeopardy voice game delivers a daily quiz experience with clues across six c
     const systemPrompt = this.buildSystemPrompt(context)
 
     try {
-      const completion = await this.openai.chat.completions.create({
-        model: this.model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Game Scenario: ${inputText}` }
-        ],
-        max_tokens: context.responseLength === 'short' ? 15 : context.responseLength === 'medium' ? 25 : 50,
-        temperature: 0.8, // Add some personality variation
-      })
+      const maxTokens = context.responseLength === 'short' ? 15 : context.responseLength === 'medium' ? 25 : 50
+      const aiResponse = await this.aiProvider.generateResponse(
+        `Game Scenario: ${inputText}`,
+        systemPrompt,
+        maxTokens
+      )
 
-      const responseText = completion.choices[0]?.message?.content || 'Sorry, I had trouble generating a response.'
-      const processingTime = Date.now() - startTime
+      const responseText = aiResponse.text
+      const processingTime = aiResponse.processingTime
       const metadata = this.calculateMetadata(responseText, processingTime)
 
       return {
@@ -290,35 +267,45 @@ The Jeopardy voice game delivers a daily quiz experience with clues across six c
         generateVoice
       }
     } catch (error) {
-      console.error('OpenAI API error:', error)
+      console.error('AI API error:', error)
       throw new Error(`Failed to generate AI response: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
   isReady(): boolean {
-    return this.isConfigured
+    return this.aiProvider.isReady()
   }
 
   getCurrentModel(): string {
-    return this.model
+    return this.aiProvider.getCurrentModel()
   }
 
-  getAvailableModels(): Array<{id: string, name: string, cost: string}> {
-    return [
-      { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', cost: 'Low cost, fast' },
-      { id: 'gpt-4o-mini', name: 'GPT-4o Mini', cost: 'Low cost, smarter' },
-      { id: 'gpt-4o', name: 'GPT-4o', cost: 'Higher cost, best quality' },
-      { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', cost: 'High cost, very smart' },
-      { id: 'gpt-4', name: 'GPT-4', cost: 'Highest cost, most capable' }
-    ]
+  getCurrentProvider(): AIProvider {
+    return this.aiProvider.getCurrentProvider()
+  }
+
+  setProvider(provider: AIProvider): boolean {
+    return this.aiProvider.setProvider(provider)
+  }
+
+  getAvailableModels(): AIModel[] {
+    return this.aiProvider.getAllAvailableModels()
+  }
+
+  getModelsForCurrentProvider(): AIModel[] {
+    return this.aiProvider.getModelsForCurrentProvider()
+  }
+
+  setModel(modelId: string): boolean {
+    return this.aiProvider.setModel(modelId)
+  }
+
+  getAvailableProviders(): Array<{provider: AIProvider, name: string, ready: boolean}> {
+    return this.aiProvider.getAvailableProviders()
   }
 
   getConfigurationHelp(): string {
-    return `To enable AI responses:
-1. Get an OpenAI API key from https://platform.openai.com/api-keys
-2. Add it to your .env file: VITE_OPENAI_API_KEY=your-key-here
-3. Optionally set model: VITE_OPENAI_MODEL=${this.model}
-4. Restart the development server`
+    return this.aiProvider.getConfigurationHelp()
   }
 }
 

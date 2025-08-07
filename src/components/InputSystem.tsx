@@ -22,6 +22,8 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
   const [isGenerating, setIsGenerating] = useState(false)
   const [useAI, setUseAI] = useState(aiResponseGenerator.isReady())
   const [generateVoice, setGenerateVoice] = useState(true)
+  const [showProviderSelector, setShowProviderSelector] = useState(false)
+  const [showModelSelector, setShowModelSelector] = useState(false)
   
   const {
     isRecording,
@@ -192,12 +194,86 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
               <div className="flex items-center gap-2">
                 <span className="text-green-600">🤖</span>
                 <span className="font-medium text-green-900">AI Mode Active</span>
-                <span className="text-green-700">- Using {aiResponseGenerator.getCurrentModel()}</span>
+                <span className="text-green-700">
+                  - {aiResponseGenerator.getCurrentProvider() === 'openai' ? 'OpenAI' : 'Claude'}: {aiResponseGenerator.getCurrentModel()}
+                </span>
               </div>
-              <div className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
-                Change model in .env file
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowProviderSelector(!showProviderSelector)}
+                  className="text-xs text-green-600 bg-green-100 hover:bg-green-200 px-2 py-1 rounded transition-colors"
+                >
+                  AI Settings
+                </button>
+                <button
+                  onClick={() => setShowModelSelector(!showModelSelector)}
+                  className="text-xs text-green-600 bg-green-100 hover:bg-green-200 px-2 py-1 rounded transition-colors"
+                >
+                  Models ({aiResponseGenerator.getModelsForCurrentProvider().length})
+                </button>
               </div>
             </div>
+            
+            {/* Provider Selector Dropdown */}
+            {showProviderSelector && (
+              <div className="mt-2 p-2 bg-green-25 border border-green-200 rounded-lg">
+                <div className="text-xs font-medium text-green-900 mb-2">Available Providers:</div>
+                <div className="space-y-1">
+                  {aiResponseGenerator.getAvailableProviders().map((provider) => (
+                    <button
+                      key={provider.provider}
+                      onClick={() => {
+                        if (provider.ready && aiResponseGenerator.setProvider(provider.provider)) {
+                          setShowProviderSelector(false)
+                          // Close model selector since models changed
+                          setShowModelSelector(false)
+                        }
+                      }}
+                      disabled={!provider.ready}
+                      className={`w-full text-left px-2 py-1 text-xs rounded transition-colors ${
+                        provider.provider === aiResponseGenerator.getCurrentProvider()
+                          ? 'bg-green-200 text-green-900 font-medium'
+                          : provider.ready
+                            ? 'bg-green-50 text-green-800 hover:bg-green-100'
+                            : 'bg-gray-50 text-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      {provider.name} {provider.provider === aiResponseGenerator.getCurrentProvider() ? '(current)' : ''} {!provider.ready && '(not configured)'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Model Selector Dropdown */}
+            {showModelSelector && (
+              <div className="mt-2 p-2 bg-blue-25 border border-blue-200 rounded-lg">
+                <div className="text-xs font-medium text-blue-900 mb-2">
+                  Available Models for {aiResponseGenerator.getCurrentProvider() === 'openai' ? 'OpenAI' : 'Claude'}:
+                </div>
+                <div className="space-y-1">
+                  {aiResponseGenerator.getModelsForCurrentProvider().map((model) => (
+                    <button
+                      key={model.id}
+                      onClick={() => {
+                        if (aiResponseGenerator.setModel(model.id)) {
+                          setShowModelSelector(false)
+                        }
+                      }}
+                      className={`w-full text-left px-2 py-1 text-xs rounded transition-colors ${
+                        model.id === aiResponseGenerator.getCurrentModel()
+                          ? 'bg-blue-200 text-blue-900 font-medium'
+                          : 'bg-blue-50 text-blue-800 hover:bg-blue-100'
+                      }`}
+                    >
+                      <div className="font-medium">{model.name}</div>
+                      <div className="text-xs opacity-75">{model.cost}</div>
+                      {model.id === aiResponseGenerator.getCurrentModel() && <div className="text-xs font-medium">(current)</div>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         ) : !useAI ? (
           <div className="flex-1 p-2 bg-blue-50 rounded-lg border border-blue-200">
@@ -253,7 +329,7 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
                   onClick={handleProvideExample}
                   className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors font-medium text-sm flex items-center gap-2 w-fit"
                 >
-                  💡 Simple Example
+                  💡 Simple Examples
                 </button>
               )}
               {selectedProduct && (
