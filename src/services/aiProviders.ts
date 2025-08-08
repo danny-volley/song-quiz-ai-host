@@ -35,7 +35,7 @@ export class OpenAIProvider extends BaseAIProvider {
   constructor() {
     super()
     const apiKey = import.meta.env.VITE_OPENAI_API_KEY
-    this.model = import.meta.env.VITE_OPENAI_MODEL || 'gpt-3.5-turbo'
+    this.model = import.meta.env.VITE_OPENAI_MODEL || 'gpt-5'
     
     if (apiKey && apiKey !== 'your-openai-api-key-here') {
       this.openai = new OpenAI({
@@ -56,20 +56,47 @@ export class OpenAIProvider extends BaseAIProvider {
   async generateResponse(prompt: string, systemPrompt: string, maxTokens: number): Promise<AIResponse> {
     const startTime = Date.now()
     
-    const completion = await this.openai.chat.completions.create({
-      model: this.model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: prompt }
-      ],
-      max_tokens: maxTokens,
-      temperature: 0.8
-    })
+    try {
+      // GPT-5 and newer models use max_completion_tokens instead of max_tokens
+      const isGPT5 = this.model === 'gpt-5' || this.model.startsWith('gpt-5')
+      
+      const requestOptions: any = {
+        model: this.model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt }
+        ]
+      }
+      
+      // GPT-5 only supports temperature of 1 (default), other models can use 0.8
+      if (!isGPT5) {
+        requestOptions.temperature = 0.8
+      }
+      
+      // Use appropriate token parameter based on model
+      if (isGPT5) {
+        requestOptions.max_completion_tokens = maxTokens
+      } else {
+        requestOptions.max_tokens = maxTokens
+      }
+      
+      const completion = await this.openai.chat.completions.create(requestOptions)
 
-    const text = completion.choices[0]?.message?.content || 'Sorry, I had trouble generating a response.'
-    const processingTime = Date.now() - startTime
+      const text = completion.choices[0]?.message?.content || 'Sorry, I had trouble generating a response.'
+      const processingTime = Date.now() - startTime
 
-    return { text, processingTime }
+      return { text, processingTime }
+    } catch (error) {
+      const processingTime = Date.now() - startTime
+      console.error('OpenAI API Error:', error)
+      
+      // Return more specific error information
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      return { 
+        text: `Sorry, I had trouble generating a response. Error: ${errorMessage}`, 
+        processingTime 
+      }
+    }
   }
 
   getCurrentModel(): string {
@@ -78,11 +105,12 @@ export class OpenAIProvider extends BaseAIProvider {
 
   getAvailableModels(): AIModel[] {
     return [
-      { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', provider: 'openai', cost: 'Low cost, fast' },
-      { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'openai', cost: 'Low cost, smarter' },
-      { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai', cost: 'Higher cost, best quality' },
-      { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', provider: 'openai', cost: 'High cost, very smart' },
-      { id: 'gpt-4', name: 'GPT-4', provider: 'openai', cost: 'Highest cost, most capable' }
+      { id: 'gpt-5', name: 'GPT-5 (Latest)', provider: 'openai', cost: 'Most advanced OpenAI model', maxTokens: 8192 },
+      { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai', cost: 'High quality, balanced cost', maxTokens: 8192 },
+      { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'openai', cost: 'Low cost, smarter', maxTokens: 8192 },
+      { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', provider: 'openai', cost: 'High cost, very smart', maxTokens: 8192 },
+      { id: 'gpt-4', name: 'GPT-4', provider: 'openai', cost: 'Previous generation flagship', maxTokens: 4096 },
+      { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', provider: 'openai', cost: 'Low cost, fast', maxTokens: 4096 }
     ]
   }
 

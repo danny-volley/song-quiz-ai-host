@@ -22,7 +22,7 @@ class TTSService {
 
   constructor() {
     // Check for ElevenLabs API key in environment variables
-    this.apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || process.env.ELEVENLABS_API_KEY
+    this.apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY
     this.isConfigured = !!(this.apiKey && this.apiKey !== 'your-elevenlabs-api-key-here')
   }
 
