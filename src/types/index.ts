@@ -1,6 +1,6 @@
 export type ProductType = 'songquiz' | 'wheel' | 'jeopardy'
 
-export type ResponseLength = 'short' | 'medium' | 'long'
+export type ResponseLength = 'short' | 'medium' | 'long' | 'banter'
 
 export type GameMode = 'single' | 'multiplayer'
 
@@ -30,7 +30,7 @@ export interface Product {
   flowSteps: FlowStep[]
 }
 
-export type FlowStepType = 'round_result' | 'game_result' | 'streak_milestone' | 'comeback_moment' | 'answer_steal' |
+export type FlowStepType = 'round_result' | 'game_result' | 'streak_milestone' | 'comeback_moment' | 'answer_steal' | 'playlist_selection' | 'banter' |
                           'puzzle_solve' | 'bankrupt' | 'big_money_spin' | 'final_puzzle' |
                           'daily_double' | 'category_completion' | 'final_jeopardy' | 'score_momentum'
 

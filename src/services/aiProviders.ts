@@ -35,7 +35,7 @@ export class OpenAIProvider extends BaseAIProvider {
   constructor() {
     super()
     const apiKey = import.meta.env.VITE_OPENAI_API_KEY
-    this.model = import.meta.env.VITE_OPENAI_MODEL || 'gpt-5'
+    this.model = import.meta.env.VITE_OPENAI_MODEL || 'gpt-4o'
     
     if (apiKey && apiKey !== 'your-openai-api-key-here') {
       this.openai = new OpenAI({
@@ -105,8 +105,8 @@ export class OpenAIProvider extends BaseAIProvider {
 
   getAvailableModels(): AIModel[] {
     return [
-      { id: 'gpt-5', name: 'GPT-5 (Latest)', provider: 'openai', cost: 'Most advanced OpenAI model', maxTokens: 8192 },
-      { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai', cost: 'High quality, balanced cost', maxTokens: 8192 },
+      { id: 'gpt-4o', name: 'GPT-4o (Default)', provider: 'openai', cost: 'High quality, balanced cost', maxTokens: 8192 },
+      { id: 'gpt-5', name: 'GPT-5 (Not Yet Available)', provider: 'openai', cost: 'Most advanced OpenAI model - limited availability', maxTokens: 8192 },
       { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'openai', cost: 'Low cost, smarter', maxTokens: 8192 },
       { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', provider: 'openai', cost: 'High cost, very smart', maxTokens: 8192 },
       { id: 'gpt-4', name: 'GPT-4', provider: 'openai', cost: 'Previous generation flagship', maxTokens: 4096 },

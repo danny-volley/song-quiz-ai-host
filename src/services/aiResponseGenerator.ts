@@ -49,7 +49,9 @@ ${PersonalityService.getPersonalityInstructions(context.personalitySettings)}
 GAME CONTEXT:
 - Game: ${context.product.toUpperCase()}
 - Mode: ${context.gameMode}
-- Players: ${context.players.map(p => `${p.name} (${p.score} points)`).join(', ')}
+- Players: ${['round_result', 'game_result', 'streak_milestone', 'comeback_moment', 'answer_steal'].includes(context.flowStep) ? 
+    context.players.map(p => `${p.name} (${p.score} points)`).join(', ') : 
+    context.players.map(p => p.name).join(', ')}
 - Current Flow Step: ${context.flowStep.replace('_', ' ')}
 - Response Length: ${context.responseLength}
 
@@ -75,18 +77,22 @@ Encouraging Spunk Style:
 
 ${responseExamples}
 
-CRITICAL: Use the player's NAME, their SCORE, and specific details from the input scenario. 
+CRITICAL: Use the player's NAME and specific details from the input scenario. 
 - Reference the actual guess/answer if provided
-- Acknowledge score changes and performance trends  
+${['round_result', 'game_result', 'streak_milestone', 'comeback_moment', 'answer_steal'].includes(context.flowStep) ? 
+  '- Acknowledge score changes and performance trends when relevant' : 
+  '- Focus on the musical moments and player engagement rather than competitive elements'}
 - Make it personal to THIS player's game experience
 - Create variety - never repeat the same response twice
 
 CRITICAL INSTRUCTIONS:
 1. You ARE Riley - respond as the host, not as an AI assistant
-2. MANDATORY WORD COUNT: ${context.responseLength === 'short' ? 'EXACTLY 1-3 SPOKEN words total. SSML tags like <break> do not count toward word limit.' : context.responseLength === 'medium' ? 'EXACTLY 3-8 SPOKEN words total. SSML tags like <break> do not count toward word limit.' : 'EXACTLY 12-20 SPOKEN words total. SSML tags like <break> do not count toward word limit. This is 1-2 sentences maximum.'}
-3. ALWAYS use specific player context:
+2. MANDATORY WORD COUNT: ${context.responseLength === 'short' ? 'EXACTLY 1-3 SPOKEN words total. SSML tags like <break> do not count toward word limit.' : context.responseLength === 'medium' ? 'EXACTLY 3-8 SPOKEN words total. SSML tags like <break> do not count toward word limit.' : context.responseLength === 'banter' ? 'EXACTLY 16-30 SPOKEN words total. SSML tags like <break> do not count toward word limit. Use 2-3 sentences for natural host commentary.' : 'EXACTLY 12-20 SPOKEN words total. SSML tags like <break> do not count toward word limit. This is 1-2 sentences maximum.'}
+3. Use appropriate player context:
    - Call players by name: ${context.players.map(p => p.name).join(', ')}
-   - Reference current scores: ${context.players.map(p => `${p.name} has ${p.score} points`).join(', ')}
+   ${['round_result', 'game_result', 'streak_milestone', 'comeback_moment', 'answer_steal'].includes(context.flowStep) ? 
+     `- Reference current scores when relevant: ${context.players.map(p => `${p.name} has ${p.score} points`).join(', ')}` : 
+     '- Focus on the musical experience and player interactions rather than scores'}
    - Acknowledge what just happened in their specific game scenario
 4. BE CREATIVE - Never copy the examples verbatim. Create fresh responses that match Riley's style
 5. Reference the actual game content: song titles, answers, guesses, performance details
@@ -240,7 +246,7 @@ The Jeopardy voice game delivers a daily quiz experience with clues across six c
     const systemPrompt = this.buildSystemPrompt(context)
 
     try {
-      const maxTokens = context.responseLength === 'short' ? 15 : context.responseLength === 'medium' ? 25 : 50
+      const maxTokens = context.responseLength === 'short' ? 15 : context.responseLength === 'medium' ? 25 : context.responseLength === 'banter' ? 75 : 50
       const aiResponse = await this.aiProvider.generateResponse(
         `Game Scenario: ${inputText}`,
         systemPrompt,

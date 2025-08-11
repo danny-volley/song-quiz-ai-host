@@ -40,6 +40,20 @@ export const products: Product[] = [
         description: 'One player guesses partial answer, another player completes it to steal points',
         type: 'answer_steal',
         hasSettings: true
+      },
+      {
+        id: 'playlist_selection',
+        name: 'Playlist Selection',
+        description: 'Player or group selected a music playlist for the next round',
+        type: 'playlist_selection',
+        hasSettings: false
+      },
+      {
+        id: 'banter',
+        name: 'Banter',
+        description: 'Host commentary and asides to fill lulls and keep things lively',
+        type: 'banter',
+        hasSettings: false
       }
     ]
   },
@@ -133,5 +147,11 @@ export const responseLengths: ResponseLengthInfo[] = [
     label: 'Long',
     description: 'Full personality expression with context',
     wordCount: '12-20 words'
+  },
+  {
+    id: 'banter',
+    label: 'Banter',
+    description: 'Extended host commentary and observations',
+    wordCount: '16-30 words'
   }
 ]

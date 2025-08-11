@@ -295,6 +295,94 @@ const songQuizExamples: { [key: string]: (settings?: FlowStepSettings) => Contex
     return [...correctStealExamples, ...failedStealExamples]
   },
 
+  playlist_selection: () => [
+    // Observable patterns - Same playlist selections
+    { id: '1', text: 'Charlie selected "2000s" for the third game in a row', category: 'player_action' as const },
+    { id: '2', text: 'Maya picked "Today\'s Top Hits" again - that\'s her fourth time this session', category: 'player_action' as const },
+    { id: '3', text: 'Ada chose "Divas" for the second consecutive round', category: 'player_action' as const },
+    { id: '4', text: 'Jordan went back to "90s" after trying it earlier', category: 'player_action' as const },
+    { id: '5', text: 'Riley selected "Meme Songs" twice in the last four rounds', category: 'player_action' as const },
+
+    // Observable patterns - Different decades/eras
+    { id: '6', text: 'Charlie jumped from "70s" straight to "2020s" - a 50-year leap', category: 'game_description' as const },
+    { id: '7', text: 'Maya went from "80s" to "2010s" to "2000s" - working backwards through decades', category: 'game_description' as const },
+    { id: '8', text: 'Ada selected "Songs of the Summer" after three decade-based playlists', category: 'game_description' as const },
+    { id: '9', text: 'Jordan chose "All Time Pop!" after focusing on specific decades', category: 'game_description' as const },
+    { id: '10', text: 'Riley picked "70s" - the oldest decade playlist available', category: 'game_description' as const },
+
+    // Observable patterns - Genre/style switches  
+    { id: '11', text: 'Charlie switched from "Boybands vs Girlbands" to "One Hit Wonders" - completely different styles', category: 'game_description' as const },
+    { id: '12', text: 'Maya went from serious "Divas" to silly "Meme Songs"', category: 'game_description' as const },
+    { id: '13', text: 'Ada chose "Today\'s Top Hits" after playing three retro decades', category: 'game_description' as const },
+    { id: '14', text: 'Jordan selected modern "2020s" after old-school "80s"', category: 'game_description' as const },
+    { id: '15', text: 'Riley picked theme-based "Songs of the Summer" instead of decade playlists', category: 'game_description' as const },
+
+    // Observable behaviors - Selection speed and hesitation
+    { id: '16', text: 'Charlie immediately picked "90s" without hesitation', category: 'situation' as const },
+    { id: '17', text: 'Maya scrolled through all playlist options twice before choosing', category: 'situation' as const },
+    { id: '18', text: 'Ada hovered over "80s" then switched to "All Time Pop!" at the last second', category: 'situation' as const },
+    { id: '19', text: 'Jordan spent 30 seconds deciding between "2000s" and "2010s"', category: 'situation' as const },
+    { id: '20', text: 'Riley quickly selected "Boybands vs Girlbands" as soon as their turn started', category: 'situation' as const },
+
+    // Observable patterns - Strategic vs random selection
+    { id: '21', text: 'Charlie avoided "Divas" - the playlist they struggled with last session', category: 'situation' as const },
+    { id: '22', text: 'Maya picked "One Hit Wonders" after dominating the previous three playlists', category: 'situation' as const },
+    { id: '23', text: 'Ada selected "80s" - the only decade playlist she hasn\'t tried yet', category: 'situation' as const },
+    { id: '24', text: 'Jordan chose "Meme Songs" to break their pattern of decade selections', category: 'situation' as const },
+    { id: '25', text: 'Riley went with "Today\'s Top Hits" after struggling with older music', category: 'situation' as const },
+
+    // Observable variety and exploration
+    { id: '26', text: 'Charlie has now tried six different playlists this session', category: 'game_description' as const },
+    { id: '27', text: 'Maya selected her first non-decade playlist with "All Time Pop!"', category: 'game_description' as const },
+    { id: '28', text: 'Ada chose "70s" - exploring every decade chronologically', category: 'game_description' as const },
+    { id: '29', text: 'Jordan picked "Songs of the Summer" for the first time this session', category: 'player_action' as const },
+    { id: '30', text: 'Riley has stuck to theme playlists, avoiding decade-specific ones', category: 'game_description' as const }
+  ],
+
+  banter: () => [
+    // Lull moments where banter would be appropriate
+    { id: '1', text: 'There\'s a natural pause while the next playlist is loading', category: 'situation' as const },
+    { id: '2', text: 'Players are taking a water break between rounds', category: 'situation' as const },
+    { id: '3', text: 'Maya is scrolling through playlist options, taking time to decide', category: 'player_action' as const },
+    { id: '4', text: 'Everyone just finished discussing a song they all recognized', category: 'situation' as const },
+    { id: '5', text: 'The group is waiting for the next round to begin', category: 'situation' as const },
+
+    // Session patterns and observations for banter topics
+    { id: '6', text: 'Charlie has been consistently strong on rock songs tonight', category: 'game_description' as const },
+    { id: '7', text: 'The group has played three different decade playlists so far', category: 'game_description' as const },
+    { id: '8', text: 'Maya mentioned her parents\' music collection earlier', category: 'player_action' as const },
+    { id: '9', text: 'Ada shows excitement every time a powerful vocalist comes on', category: 'game_description' as const },
+    { id: '10', text: 'Jordan surprised everyone with knowledge of deep cuts', category: 'game_description' as const },
+
+    // Transition moments perfect for commentary
+    { id: '11', text: 'Players just switched from "90s" to "2020s" playlist - big era jump', category: 'game_description' as const },
+    { id: '12', text: 'The group went from serious "Divas" to silly "Meme Songs"', category: 'game_description' as const },
+    { id: '13', text: 'Session has covered 50+ years of music across multiple genres', category: 'game_description' as const },
+    { id: '14', text: 'Everyone just heard a song that was popular during their high school years', category: 'situation' as const },
+    { id: '15', text: 'The last three songs all hit #1 in different decades', category: 'game_description' as const },
+
+    // Energy and atmosphere observations
+    { id: '16', text: 'Room energy is high - everyone is engaged and having fun', category: 'situation' as const },
+    { id: '17', text: 'Players are starting to share personal music stories', category: 'situation' as const },
+    { id: '18', text: 'Someone just mentioned this song being on their road trip playlist', category: 'player_action' as const },
+    { id: '19', text: 'The group is humming along to songs before answering', category: 'situation' as const },
+    { id: '20', text: 'Everyone seems relaxed and comfortable with each other', category: 'situation' as const },
+
+    // Perfect moments for host commentary
+    { id: '21', text: 'Natural conversation lull as players get settled for next round', category: 'situation' as const },
+    { id: '22', text: 'Players are discussing how different each decade sounds', category: 'situation' as const },
+    { id: '23', text: 'Someone just made a connection between two songs from different eras', category: 'player_action' as const },
+    { id: '24', text: 'The group discovered they all know the same obscure B-side track', category: 'situation' as const },
+    { id: '25', text: 'Players are debating which decade had the best music', category: 'situation' as const },
+
+    // Session flow observations
+    { id: '26', text: 'This is the final playlist selection of the session', category: 'game_description' as const },
+    { id: '27', text: 'Group has explored six different playlists tonight', category: 'game_description' as const },
+    { id: '28', text: 'Players have shown knowledge across multiple musical eras', category: 'game_description' as const },
+    { id: '29', text: 'Someone keeps picking the same type of playlist repeatedly', category: 'game_description' as const },
+    { id: '30', text: 'The session has had a good mix of familiar hits and deep cuts', category: 'game_description' as const }
+  ],
+
   // Default for any other flow steps
   default: () => [
     { id: '1', text: 'Player is doing great so far', category: 'situation' as const },
@@ -587,6 +675,78 @@ Current Game: Folk/Acoustic playlist (complete genre switch). Round 1 of 5. This
 Recent Riley responses: "Big genre switch here!", "Metal to folk - that's quite a jump!", "Don't worry, different muscles needed for this one!"
 
 Riley just heard harmonica intro and hesitantly said "Blowin' in the Wind... by Bob Dylan?" and got it correct, showing signs of adapting to the new genre.`
+  },
+  {
+    id: '6',
+    title: 'Strategic Playlist Selection',
+    description: 'Player chose playlist tactically after analyzing group strengths',
+    text: `Previous Rounds: Maya dominated "2000s" (4/5 correct), Charlie struggled with "90s" (1/5), Ada excelled at "Divas" (5/5), Jordan was average on "Meme Songs" (3/5).
+Current Situation: It's Charlie's turn to pick the next playlist. Group is tied 12-12-11-10 points. Charlie studied everyone's performance and selected "80s" - knowing it's Maya's weak spot from earlier games.
+Recent Riley responses: "Smart strategic thinking!", "Charlie's playing the long game here!", "Good choice to shake things up!"
+The 80s playlist just loaded up and Maya looked nervous, exactly what Charlie was hoping for when making this tactical selection.`
+  },
+  {
+    id: '7', 
+    title: 'Comfort Zone Playlist Pick',
+    description: 'Player selected familiar playlist after struggling with challenging rounds',
+    text: `Previous Games: Jordan bombed "One Hit Wonders" (1/5), barely survived "Boybands vs Girlbands" (2/5), and struggled with "All Time Pop!" (2/5).
+Current Situation: Jordan's confidence is shaken. Score: Ada 18, Maya 16, Charlie 14, Jordan 8. It's Jordan's turn to select and they chose "Today's Top Hits" - their comfort zone.
+Recent Riley responses: "Sometimes you gotta play to your strengths!", "Smart move going with what you know!", "Nothing wrong with playing it safe!"
+Jordan immediately relaxed when "Anti-Hero by Taylor Swift" started playing, confidently calling it out within 2 seconds - exactly the confidence boost they needed.`
+  },
+  {
+    id: '8',
+    title: 'Surprise Playlist Challenge', 
+    description: 'Group reacted to unexpected playlist selection with mixed emotions',
+    text: `Session History: Group has played "2010s," "Songs of the Summer," and "All Time Pop!" - all mainstream, predictable choices that everyone felt comfortable with.
+Current Moment: Ada shocked everyone by selecting "Meme Songs" playlist. Maya groaned "Oh no, not the weird ones!", Charlie laughed nervously, Jordan said "This should be interesting..."
+Recent Riley responses: "Ooh, curveball playlist!", "Ada's mixing things up!", "Get ready for some surprises!"
+First song was "Never Gonna Give You Up by Rick Astley" and everyone burst out laughing - Ada's bold playlist choice completely changed the room's energy from competitive to fun and silly.`
+  },
+  {
+    id: '9',
+    title: 'Nostalgia Playlist Selection',
+    description: 'Emotional playlist choice triggered memories and personal connections',
+    text: `Context: Maya mentioned earlier that her mom used to play 70s music every Sunday morning while cleaning the house. Group has been playing modern playlists all session.
+Current Pick: Maya selected "70s" playlist saying "Time for some childhood memories!" Her eyes lit up as she explained her connection to this era.
+Recent Riley responses: "Love the personal touch!", "70s brings back the feels!", "Nothing like music that tells your story!"
+"Dancing Queen by ABBA" started playing and Maya immediately started singing along with tears in her eyes, telling the group "This was mom's absolute favorite song" - the whole room got emotional and supportive.`
+  },
+  {
+    id: '10',
+    title: 'Host Commentary During Playlist Loading',
+    description: 'Riley fills transition time with music trivia and observations',
+    text: `Current Situation: Jordan just selected "80s" playlist after the group played "2000s," "90s," and "2010s." The playlist is loading and there's a natural lull in conversation.
+Session Context: The group has shown strong knowledge of recent decades but hasn't tackled the 80s yet. Maya mentioned earlier she grew up on her parents' 80s collection.
+Riley's banter opportunity: "You know, the 80s were wild - artists literally invented new sounds because they got their hands on synthesizers and drum machines for the first time. Plus Maya, I have a feeling you're about to school everyone here based on what you mentioned about your parents' collection. The 80s had this thing where a song could sound completely futuristic and totally nostalgic at the same time. We're talking the decade that gave us both 'Take On Me' and 'Don't Stop Believin'' - talk about range!"
+The playlist loads up and everyone's laughing and energized from Riley's commentary, ready to tackle the decade with renewed enthusiasm.`
+  },
+  {
+    id: '11',
+    title: 'Observational Banter About Player Patterns', 
+    description: 'Riley comments on interesting gameplay trends they\'ve noticed',
+    text: `Session History: Over 6 rounds, Charlie has been consistently faster on rock songs than pop, Ada dominates anything with strong vocals, Maya knows every 90s alternative track, and Jordan surprises with deep cuts.
+Current Moment: The group is between rounds, taking a short break. There's a natural pause in conversation as people grab water and get comfortable.
+Riley's banter: "Okay, I have to share what I've been noticing here - we've got some serious musical DNA showing up. Charlie, you light up on anything with a guitar solo, like you can sense it coming three notes early. Ada, you've called out every powerhouse vocalist before they even hit their big note. Maya, I think you had a direct line to every college radio station in the 90s. And Jordan - those deep cuts! You're pulling out B-sides like they're your greatest hits. It's like watching a master class in how different people connect with music."
+Everyone starts laughing and comparing their musical backgrounds, leading to stories about how they first discovered their favorite artists.`
+  },
+  {
+    id: '12',
+    title: 'Cultural Commentary Banter',
+    description: 'Riley connects the music to broader cultural moments and trends',
+    text: `Game Context: The group has played songs spanning from 1970s to today across multiple playlists. Songs have included "Billie Jean," "Smells Like Teen Spirit," "Hey Ya!," and "Anti-Hero."
+Moment: There's a brief pause as the next playlist loads, and people are discussing how different the songs feel from each decade.
+Riley's cultural banter: "What's blowing my mind right now is that we just time-traveled through 50 years of culture in 30 minutes. Like, we went from disco-era optimism to grunge's questioning everything, to Y2K's party energy, to today's hyper-personal songwriting. Each of these songs was the soundtrack to someone's world changing. 'Billie Jean' was playing when MTV started, 'Smells Like Teen Spirit' defined a generation's rebellion, 'Hey Ya!' got everyone through the early 2000s, and 'Anti-Hero' is literally everyone's therapy session set to music. We're not just playing songs - we're playing the emotional history of America!"
+The group gets into an animated discussion about how music reflects the times, with everyone sharing which eras speak to them most.`
+  },
+  {
+    id: '13',
+    title: 'Energy Building Banter Before Big Moment',
+    description: 'Riley creates anticipation and excitement during natural game lulls',
+    text: `Situation: It's the final playlist selection and everyone's been having an amazing time. Maya's turn to pick and she's taking her time scrolling through options, creating natural anticipation.
+Session Energy: Everyone is leaning forward, totally engaged, with lots of laughter and genuine excitement throughout the session.
+Riley's anticipation banter: "Okay Maya, I can practically see the wheels turning over there! This is one of those moments where you can feel the music magic in the air. Are we going with a comfort zone pick? A curveball to shake things up? Something totally unexpected? You know what I love about this moment? Whatever you choose, it's going to be perfect because that's how music works - it always knows exactly what we need. The music gods are definitely watching this decision!"
+Maya grins and dramatically selects "One Hit Wonders," causing everyone to burst out laughing and clapping, setting up the perfect energy for the final round with pure musical joy.`
   }
 ]
 

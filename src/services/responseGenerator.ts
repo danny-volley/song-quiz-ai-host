@@ -158,7 +158,7 @@ class ResponseGenerator {
     return response
   }
 
-  private adjustResponseLength(response: string, length: 'short' | 'medium' | 'long', context: ResponseContext): string {
+  private adjustResponseLength(response: string, length: 'short' | 'medium' | 'long' | 'banter', context: ResponseContext): string {
     if (length === 'short') {
       // Always use PersonalityService for varied short responses to prevent repetition
       const isCorrect = /great|good|nice|perfect|awesome|excellent|correct|right|yes|nailed|spot on/i.test(response)
@@ -167,6 +167,9 @@ class ResponseGenerator {
       return PersonalityService.generateShortResponse(isCorrect, context.personalitySettings)
     } else if (length === 'long') {
       return response + " Keep up the great energy and let's see what comes next!"
+    } else if (length === 'banter') {
+      // Extend response for host commentary and observations
+      return response + " Music really brings out the best in people, don't you think?"
     }
     return response
   }

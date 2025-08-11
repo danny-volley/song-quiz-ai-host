@@ -13,18 +13,18 @@ export default function ResponseLengthSelector({ selectedLength, onLengthChange 
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
           📏 Response Length
         </h3>
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-gray-600 mb-3">
           Control how detailed Riley's responses should be.
         </p>
       </div>
       
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-1 gap-2">
         {responseLengths.map((lengthInfo) => (
           <button
             key={lengthInfo.id}
             onClick={() => onLengthChange(lengthInfo.id)}
             className={`
-              p-4 text-left border rounded-lg transition-all duration-200 hover:shadow-md
+              p-3 text-left border rounded-lg transition-all duration-200 hover:shadow-md
               ${selectedLength === lengthInfo.id
                 ? 'border-green-500 bg-green-50 ring-2 ring-green-200'
                 : 'border-gray-200 bg-white hover:border-gray-300'
@@ -45,7 +45,7 @@ export default function ResponseLengthSelector({ selectedLength, onLengthChange 
                     {lengthInfo.wordCount}
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 mt-1">{lengthInfo.description}</p>
+                <p className="text-sm text-gray-600 mt-0.5">{lengthInfo.description}</p>
               </div>
               <div className={`
                 w-4 h-4 rounded-full border-2 transition-colors
