@@ -135,8 +135,8 @@ class ResponseGenerator {
       response = response.replace('Well done!', "Don't worry, you'll get the next one!")
     }
 
-    // Apply comprehensive personality modifications
-    response = PersonalityService.applyPersonalityIntensity(response, context.personalitySettings)
+    // Temporarily disabled - using original personality profile instead of slider overrides
+    // response = PersonalityService.applyPersonalityIntensity(response, context.personalitySettings)
 
     // Add context-specific details
     response = this.addContextDetails(response, inputText, context)
@@ -158,13 +158,19 @@ class ResponseGenerator {
     return response
   }
 
-  private adjustResponseLength(response: string, length: 'short' | 'medium' | 'long' | 'banter', context: ResponseContext): string {
+  private adjustResponseLength(response: string, length: 'short' | 'medium' | 'long' | 'banter', _context: ResponseContext): string {
     if (length === 'short') {
-      // Always use PersonalityService for varied short responses to prevent repetition
+      // Temporarily using simple short responses instead of PersonalityService overrides
       const isCorrect = /great|good|nice|perfect|awesome|excellent|correct|right|yes|nailed|spot on/i.test(response)
       
-      // Use PersonalityService for all short responses to ensure variety
-      return PersonalityService.generateShortResponse(isCorrect, context.personalitySettings)
+      // Return simple short responses based on correctness
+      if (isCorrect) {
+        const correctResponses = ['Nice!', 'Great!', 'Well done!', 'Excellent!', 'Perfect!']
+        return correctResponses[Math.floor(Math.random() * correctResponses.length)]
+      } else {
+        const incorrectResponses = ['Not quite!', 'Close!', 'Try again!', 'Almost!', 'Next time!']
+        return incorrectResponses[Math.floor(Math.random() * incorrectResponses.length)]
+      }
     } else if (length === 'long') {
       return response + " Keep up the great energy and let's see what comes next!"
     } else if (length === 'banter') {
@@ -204,7 +210,8 @@ class ResponseGenerator {
       responseLength: state.selectedResponseLength,
       flowStep: state.selectedFlowStep,
       flowStepSettings: state.flowStepSettings,
-      personalitySettings: state.personalitySettings
+      personalitySettings: state.personalitySettings,
+      selectedPersonality: state.selectedPersonality
     }
 
     const personality = this.analyzePersonality(state.personalitySettings)

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import type { GeneratedResponse, TTSMetadata } from '../types'
+import type { GeneratedResponse, TTSMetadata, SelectedPersonality } from '../types'
 import { ttsService } from '../services/ttsService'
 import AudioPlayer from './AudioPlayer'
 
@@ -9,6 +9,7 @@ interface OutputSystemProps {
   onClear?: () => void
   enableTTS?: boolean
   autoPlayTTS?: boolean
+  selectedPersonality?: SelectedPersonality
 }
 
 export default function OutputSystem({ 
@@ -16,11 +17,14 @@ export default function OutputSystem({
   isGenerating, 
   onClear, 
   enableTTS = true,
-  autoPlayTTS = true 
+  autoPlayTTS = true,
+  selectedPersonality
 }: OutputSystemProps) {
   const [showDetails, setShowDetails] = useState(false)
   const [showInputContext, setShowInputContext] = useState(false)
   const [ttsData, setTTSData] = useState<TTSMetadata | null>(null)
+  
+  const personalityName = selectedPersonality?.name || 'Riley'
 
   // Generate TTS when new response arrives
   useEffect(() => {
@@ -41,7 +45,7 @@ export default function OutputSystem({
       try {
         const ttsResult = await ttsService.generateSpeech({
           text: response.response.text,
-          // Optimize settings for Riley's personality
+          // Optimize settings for the selected personality
           stability: 0.6,
           similarityBoost: 0.85,
           style: 0.4,
@@ -132,7 +136,7 @@ export default function OutputSystem({
               <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              🤖 Riley is thinking...
+              🤖 {personalityName} is thinking...
             </h3>
             <p className="text-sm text-gray-600">
               Analyzing your scenario and crafting a personalized response
@@ -155,7 +159,7 @@ export default function OutputSystem({
             No Response Yet
           </h3>
           <p className="text-sm text-gray-600">
-            Submit an input above to see Riley's response
+            Submit an input above to see {personalityName}'s response
           </p>
           {enableTTS && !ttsService.isReady() && (
             <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
@@ -164,7 +168,7 @@ export default function OutputSystem({
                   🎤 Voice synthesis available with ElevenLabs
                 </p>
                 <p className="text-xs text-blue-700">
-                  Add your ElevenLabs API key to .env to enable Riley's voice. Text responses work without it.
+                  Add your ElevenLabs API key to .env to enable {personalityName}'s voice. Text responses work without it.
                 </p>
               </div>
             </div>
@@ -185,7 +189,7 @@ export default function OutputSystem({
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">
-                Riley's Response
+                {personalityName}'s Response
               </h3>
               <p className="text-sm text-gray-500">
                 Generated at {formatTimestamp(response.timestamp)}
@@ -237,7 +241,7 @@ export default function OutputSystem({
                 <div className="flex items-center gap-3">
                   <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
                   <span className="text-sm text-purple-700 font-medium">
-                    🎤 Generating Riley's voice...
+                    🎤 Generating {personalityName}'s voice...
                   </span>
                 </div>
               </div>
@@ -266,7 +270,7 @@ export default function OutputSystem({
                   </div>
                   <p className="text-xs text-yellow-700">
                     {ttsData.error?.includes('CORS') || ttsData.error?.includes('Failed to fetch') 
-                      ? "TTS is disabled in development mode due to browser security restrictions. The text response above shows what Riley would say."
+                      ? `TTS is disabled in development mode due to browser security restrictions. The text response above shows what ${personalityName} would say.`
                       : ttsData.error
                     }
                   </p>

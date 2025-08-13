@@ -3,10 +3,12 @@ import type {
   GeneratedResponse, 
   ResponseContext, 
   PersonalityAnalysis,
-  PersonalitySettings 
+  PersonalitySettings,
+  SelectedPersonality
 } from '../types'
 import { PersonalityService } from './personalityService'
 import { MultiAIProvider, type AIProvider, type AIModel } from './aiProviders'
+import { getPersonalityById } from '../data/personalities'
 
 class AIResponseGenerator {
   private aiProvider: MultiAIProvider
@@ -25,26 +27,28 @@ class AIResponseGenerator {
 
   private buildSystemPrompt(context: ResponseContext): string {
     const gameContext = this.getGameContext(context)
-    const responseExamples = this.getRileyResponseExamples(context.responseLength)
+    const responseExamples = this.getResponseExamples(context.responseLength, context.selectedPersonality)
     
-    return `You are Riley, an AI game show host with a dynamic personality. You're responding to a live game scenario.
+    // Get the selected personality profile
+    const personality = getPersonalityById(context.selectedPersonality.id)
+    if (!personality) {
+      throw new Error(`Personality not found: ${context.selectedPersonality.id}`)
+    }
+    
+    return `${personality.systemPromptCore}
 
 CORE PERSONALITY:
-Riley brings infectious energy, family-friendly snark, and genuine excitement to every game. She's the friend who's genuinely thrilled when you succeed, playfully teases when you stumble, but always keeps the energy positive and fun.
+${personality.corePersonality}
 
-Age & Energy: 19-22 years old vibe — young enough to be current and energetic, mature enough to handle the responsibility of hosting classic game shows
+Age & Energy: ${personality.age}
 
 PERSONALITY PILLARS:
-- Playfully Snarky: Quick with witty observations, but never mean-spirited
-- Genuinely Excited: Gets authentically pumped up about good plays and comebacks  
-- Family-Friendly Confident: Self-assured energy that works perfectly for family TV
-- Game-Smart: Knows her stuff across music, trivia, and word games
-- Encouraging Competitor: Wants everyone to succeed, but loves the thrill of the game
-- Relationship Builder: Makes players feel seen and recognized, treating them like valued contestants
-- Playful Confidence: Unshakeable confidence that lifts others up rather than putting them down
+${personality.personalityPillars.map(pillar => `- ${pillar}`).join('\n')}
 
+/* Temporarily disabled - using original personality profile instead of slider overrides
 CURRENT PERSONALITY SETTINGS (CRITICAL - FOLLOW THESE EXACTLY):
 ${PersonalityService.getPersonalityInstructions(context.personalitySettings)}
+*/
 
 GAME CONTEXT:
 - Game: ${context.product.toUpperCase()}
@@ -57,23 +61,10 @@ GAME CONTEXT:
 
 ${gameContext}
 
-RILEY'S RESPONSE STYLE GUIDELINES:
-These examples show Riley's TONE and APPROACH - do NOT copy them verbatim. Create fresh, contextual responses that match this energy:
+${personality.displayName.toUpperCase()}'S RESPONSE STYLE GUIDELINES:
+These examples show ${personality.displayName}'s TONE and APPROACH - do NOT copy them verbatim. Create fresh, contextual responses that match this energy:
 
-Family-Friendly Snark Style:
-- Playful teasing that builds up rather than tears down
-- Acknowledges effort even when results aren't perfect  
-- Uses humor to keep energy positive during mistakes
-
-Witty Observations Style:
-- Celebrates skill with surprised delight
-- Notices when something looks effortless 
-- Calls out impressive moments with personality
-
-Encouraging Spunk Style:
-- Reframes setbacks as opportunities
-- Builds momentum during comeback moments
-- Gets genuinely excited about close competition
+${personality.expressionStyle}
 
 ${responseExamples}
 
@@ -86,7 +77,7 @@ ${['round_result', 'game_result', 'streak_milestone', 'comeback_moment', 'answer
 - Create variety - never repeat the same response twice
 
 CRITICAL INSTRUCTIONS:
-1. You ARE Riley - respond as the host, not as an AI assistant
+1. You ARE ${personality.displayName} - respond as the host, not as an AI assistant
 2. MANDATORY WORD COUNT: ${context.responseLength === 'short' ? 'EXACTLY 1-3 SPOKEN words total. SSML tags like <break> do not count toward word limit.' : context.responseLength === 'medium' ? 'EXACTLY 3-8 SPOKEN words total. SSML tags like <break> do not count toward word limit.' : context.responseLength === 'banter' ? 'EXACTLY 16-30 SPOKEN words total. SSML tags like <break> do not count toward word limit. Use 2-3 sentences for natural host commentary.' : 'EXACTLY 12-20 SPOKEN words total. SSML tags like <break> do not count toward word limit. This is 1-2 sentences maximum.'}
 3. Use appropriate player context:
    - Call players by name: ${context.players.map(p => p.name).join(', ')}
@@ -94,62 +85,64 @@ CRITICAL INSTRUCTIONS:
      `- Reference current scores when relevant: ${context.players.map(p => `${p.name} has ${p.score} points`).join(', ')}` : 
      '- Focus on the musical experience and player interactions rather than scores'}
    - Acknowledge what just happened in their specific game scenario
-4. BE CREATIVE - Never copy the examples verbatim. Create fresh responses that match Riley's style
+4. BE CREATIVE - Never copy the examples verbatim. Create fresh responses that match ${personality.displayName}'s style
 5. Reference the actual game content: song titles, answers, guesses, performance details
-6. Match the personality settings while staying true to Riley's core character
+6. Match the personality settings while staying true to ${personality.displayName}'s core character
 7. Use natural, conversational language appropriate for the word limit  
-8. Stay family-friendly but maintain Riley's playful confidence
+8. Stay family-friendly but maintain ${personality.displayName}'s personality
 9. Count your words before responding - this is mandatory for proper game timing
 10. Make each response unique - vary your language and approach
 
 VOICE EXPRESSION GUIDELINES:
-Use these markup elements to enhance Riley's vocal delivery:
-- Add breaks between sentences: <break time="0.4s" />
-- Use ellipses (...) for hesitations and dramatic pauses within sentences
-- Add multiple exclamation points (!!) for extra emphasis and excitement
-- Natural speech flow: "That was amazing!! <break time="0.4s" /> You really... wow, just wow!"
+${personality.voiceGuidelines}
 
-Examples of enhanced expression:
-- Short: "Nice!!" or "Oops..." or "Boom!!"
-- Medium: "That was... incredible!!" or "Ooh, so close! <break time="0.3s" /> Next time!"
-- Long: "Well well well... <break time="0.4s" /> Someone's been practicing!! That was absolutely fantastic!"
-
-Remember: You're Riley responding to THIS specific moment with THESE specific players in their unique game situation. Make it personal, authentic, and expressive for voice synthesis.`
+Remember: You're ${personality.displayName} responding to THIS specific moment with THESE specific players in their unique game situation. Make it personal, authentic, and expressive for voice synthesis.`
   }
 
 
-  private getRileyResponseExamples(responseLength: string): string {
+  private getResponseExamples(responseLength: string, selectedPersonality: SelectedPersonality): string {
+    // Get the personality profile
+    const personality = getPersonalityById(selectedPersonality.id)
+    if (!personality) {
+      return '' // Fallback if personality not found
+    }
     switch (responseLength) {
       case 'short':
         return `SHORT RESPONSE STYLE EXAMPLES (1-3 words) - ADAPT THESE, DON'T COPY:
-Show Riley's energy in just 1-3 words with voice expression:
-- Celebratory reactions: "That's fire!!" or "Pure heat!!" or "You're legend!!" or "Ice cold!!" or "Straight facts!!" 
-- Impressed responses: "Pretty smooth!!" or "Getting fancy!!" or "Look at you!!" or "Not too shabby!!"  
-- Encouraging nudges: "Almost there!" or "So close!" or "You got this!" or "Good try!" or "Nearly had it!"
-- Snarky incorrect responses: "That was weak!" or "You're sleepin'!" or "Total cap!" or "Way off!" or "Swing and miss!"
-- Balanced responses: "Nice work!" or "Great job!" or "Try again!" or "Close call!" or "Good effort!"
+Show ${personality.displayName}'s energy in just 1-3 words with voice expression:
+- Celebratory reactions: ${personality.shortExamples.celebratory.map(ex => `"${ex}"`).join(' or ')}
+- Impressed responses: ${personality.shortExamples.impressed.map(ex => `"${ex}"`).join(' or ')}
+- Encouraging nudges: ${personality.shortExamples.encouraging.map(ex => `"${ex}"`).join(' or ')}
+- Snarky responses: ${personality.shortExamples.snarky.map(ex => `"${ex}"`).join(' or ')}
 
 Focus on 2-3 word phrases over single words. CREATE YOUR OWN versions that fit the actual scenario and player context. Use variety to avoid repetition of overused phrases!`
 
       case 'medium':
         return `MEDIUM RESPONSE STYLE EXAMPLES (3-8 words) - ADAPT THESE, DON'T COPY:
-Show more personality in 3-8 words with voice expression:
-- Acknowledge effort: "Someone's been... practicing!!"
-- Celebrate moments: "Now we're talking!!"
-- Encourage during struggles: "You'll get the next one!"
-- Reference player specifically: "[Player name], that was close!"
+Show more ${personality.displayName} personality in 3-8 words with voice expression:
+- Correct answers: ${personality.mediumExamples.correct.map(ex => `"${ex}"`).join(' or ')}
+- Incorrect answers: ${personality.mediumExamples.incorrect.map(ex => `"${ex}"`).join(' or ')}
+- Transitions: ${personality.mediumExamples.transition.map(ex => `"${ex}"`).join(' or ')}
 
 CREATE YOUR OWN versions using the player's name, score, and specific game context.`
 
       case 'long':
         return `LONG RESPONSE STYLE EXAMPLES (12-20 words) - ADAPT THESE, DON'T COPY:
-Express full Riley personality in 1-2 sentences with voice expression:
-- Build on performance: "That was solid work!! <break time="0.4s" /> You're really finding your rhythm now."
-- Address comebacks: "Now THIS is the energy I was waiting for!! <break time="0.4s" /> Keep it going!"
-- Handle mistakes: "Not quite, but... I love the confidence in that guess!!"
-- Reference specifics: "After that last round... <break time="0.4s" /> You've really turned things around!!"
+Express full ${personality.displayName} personality in 1-2 sentences with voice expression:
+- Performance feedback: ${personality.longExamples.performance.map(ex => `"${ex}"`).join(' or ')}
+- Comeback moments: ${personality.longExamples.comeback.map(ex => `"${ex}"`).join(' or ')}
+- General banter: ${personality.longExamples.banter.map(ex => `"${ex}"`).join(' or ')}
 
 CREATE YOUR OWN responses that reference the player's actual situation, score, and performance.`
+
+      case 'banter':
+        return `BANTER RESPONSE STYLE EXAMPLES (16-30 words) - ADAPT THESE, DON'T COPY:
+Express ${personality.displayName}'s conversational hosting style in 2-3 sentences:
+- Musical observations: ${personality.banterExamples.musical.map(ex => `"${ex}"`).join(' or ')}
+- Cultural commentary: ${personality.banterExamples.cultural.map(ex => `"${ex}"`).join(' or ')}
+- Observational humor: ${personality.banterExamples.observational.map(ex => `"${ex}"`).join(' or ')}
+
+CREATE YOUR OWN host commentary that fits the current game moment and player situation.`
 
       default:
         return ''
@@ -239,7 +232,8 @@ The Jeopardy voice game delivers a daily quiz experience with clues across six c
       responseLength: state.selectedResponseLength,
       flowStep: state.selectedFlowStep,
       flowStepSettings: state.flowStepSettings,
-      personalitySettings: state.personalitySettings
+      personalitySettings: state.personalitySettings,
+      selectedPersonality: state.selectedPersonality
     }
 
     const personality = this.analyzePersonality(state.personalitySettings)

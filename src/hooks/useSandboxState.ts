@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
-import { ProductType, ResponseLength, SandboxState, FlowStepSettings, GameMode, Player, PersonalitySettings, GeneratedResponse } from '../types'
+import { ProductType, ResponseLength, SandboxState, FlowStepSettings, GameMode, Player, PersonalitySettings, GeneratedResponse, SelectedPersonality } from '../types'
 import { products } from '../data/products'
+import { getDefaultPersonality } from '../data/personalities'
 
 const initialState: SandboxState = {
   selectedProduct: 'songquiz',
@@ -19,6 +20,10 @@ const initialState: SandboxState = {
     playfulSnarky: 4,
     excitementStyle: 4,
     encouragementStyle: 4
+  },
+  selectedPersonality: {
+    id: getDefaultPersonality().id,
+    name: getDefaultPersonality().name
   },
   players: [
     {
@@ -99,6 +104,13 @@ export function useSandboxState() {
     }))
   }, [])
 
+  const updateSelectedPersonality = useCallback((personality: SelectedPersonality) => {
+    setState(prev => ({
+      ...prev,
+      selectedPersonality: personality
+    }))
+  }, [])
+
   const updateLastResponse = useCallback((response: GeneratedResponse | undefined) => {
     setState(prev => ({
       ...prev,
@@ -126,6 +138,7 @@ export function useSandboxState() {
     updateFlowStep,
     updateFlowStepSettings,
     updatePersonalitySettings,
+    updateSelectedPersonality,
     updatePlayers,
     updateInputText,
     updateLastResponse,

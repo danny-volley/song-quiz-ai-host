@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import type { ProductType, SandboxState, GeneratedResponse } from '../types'
+import type { ProductType, SandboxState, GeneratedResponse, SelectedPersonality } from '../types'
 import { useVoiceRecording } from '../hooks/useVoiceRecording'
 import { responseGenerator } from '../services/responseGenerator'
 import { aiResponseGenerator } from '../services/aiResponseGenerator'
@@ -12,12 +12,14 @@ interface InputSystemProps {
   sandboxState: SandboxState
   onResponseGenerated: (response: GeneratedResponse) => void
   onGeneratingChange?: (isGenerating: boolean) => void
+  selectedPersonality?: SelectedPersonality
 }
 
 
 type InputMode = 'text' | 'voice'
 
-export default function InputSystem({ selectedProduct, inputText, onInputChange, sandboxState, onResponseGenerated, onGeneratingChange }: InputSystemProps) {
+export default function InputSystem({ selectedProduct, inputText, onInputChange, sandboxState, onResponseGenerated, onGeneratingChange, selectedPersonality }: InputSystemProps) {
+  const personalityName = selectedPersonality?.name || 'Riley'
   const [inputMode, setInputMode] = useState<InputMode>('text')
   const [isGenerating, setIsGenerating] = useState(false)
   const [useAI, setUseAI] = useState(aiResponseGenerator.isReady())
@@ -114,7 +116,7 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
             💬 Input Context
           </h3>
           <p className="text-sm text-gray-600">
-            Describe the game scenario or moment for Riley to respond to.
+            Describe the game scenario or moment for {personalityName} to respond to.
           </p>
         </div>
         
@@ -307,8 +309,8 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
               onChange={(e) => onInputChange(e.target.value)}
               placeholder={
                 selectedProduct 
-                  ? `Describe a ${selectedProduct} scenario for Riley to respond to...`
-                  : 'Select a product first, then describe a scenario for Riley to respond to...'
+                  ? `Describe a ${selectedProduct} scenario for ${personalityName} to respond to...`
+                  : `Select a product first, then describe a scenario for ${personalityName} to respond to...`
               }
               disabled={!selectedProduct}
               className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm resize-none"
@@ -359,7 +361,7 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
                     Generating...
                   </>
                 ) : (
-                  '🚀 Submit to Riley'
+                  `🚀 Submit to ${personalityName}`
                 )}
               </button>
             </div>
@@ -474,7 +476,7 @@ export default function InputSystem({ selectedProduct, inputText, onInputChange,
                     Generating...
                   </>
                 ) : (
-                  '🚀 Submit to Riley'
+                  `🚀 Submit to ${personalityName}`
                 )}
               </button>
             </div>

@@ -1,10 +1,11 @@
-import type { PersonalitySettings } from '../types'
+import type { PersonalitySettings, SelectedPersonality } from '../types'
 import type { Theme } from '../utils/themes'
 
 interface PersonalitySlidersProps {
   settings: PersonalitySettings
   onSettingsChange: (settings: PersonalitySettings) => void
   theme: Theme
+  selectedPersonality?: SelectedPersonality
 }
 
 interface SliderConfig {
@@ -43,7 +44,8 @@ const getSliderConfigs = (theme: Theme): SliderConfig[] => [
   }
 ]
 
-export default function PersonalitySliders({ settings, onSettingsChange, theme }: PersonalitySlidersProps) {
+export default function PersonalitySliders({ settings, onSettingsChange, theme, selectedPersonality }: PersonalitySlidersProps) {
+  const personalityName = selectedPersonality?.name || 'Riley'
   const sliderConfigs = getSliderConfigs(theme)
 
   const updateSetting = (key: keyof PersonalitySettings, value: number) => {
@@ -114,7 +116,7 @@ export default function PersonalitySliders({ settings, onSettingsChange, theme }
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900">
-          🎛️ Riley's Personality
+          🎛️ {personalityName}'s Personality
         </h3>
         <button
           onClick={resetToDefaults}

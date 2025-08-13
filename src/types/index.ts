@@ -16,6 +16,11 @@ export interface PersonalitySettings {
   encouragementStyle: number   // 1=Gentle Encouragement, 5=Tough Love
 }
 
+export interface SelectedPersonality {
+  id: string
+  name: string
+}
+
 export interface ResponseLengthInfo {
   id: ResponseLength
   label: string
@@ -69,6 +74,7 @@ export interface SandboxState {
   selectedFlowStep: string | null
   flowStepSettings: FlowStepSettings
   personalitySettings: PersonalitySettings
+  selectedPersonality: SelectedPersonality
   players: Player[]
   inputText: string
   lastResponse?: GeneratedResponse
@@ -98,6 +104,7 @@ export interface ResponseContext {
   flowStep: string
   flowStepSettings: FlowStepSettings
   personalitySettings: PersonalitySettings
+  selectedPersonality: SelectedPersonality
 }
 
 export interface PersonalityAnalysis {

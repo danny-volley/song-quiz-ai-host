@@ -2,7 +2,8 @@ import ProductSelector from '../components/ProductSelector'
 import ResponseLengthSelector from '../components/ResponseLengthSelector'
 import FlowStepSelector from '../components/FlowStepSelector'
 import PlayerConfiguration from '../components/PlayerConfiguration'
-import PersonalitySliders from '../components/PersonalitySliders'
+import PersonalitySelector from '../components/PersonalitySelector'
+// import PersonalitySliders from '../components/PersonalitySliders' // Temporarily disabled
 import InputSystem from '../components/InputSystem'
 import ResponseDisplay from '../components/ResponseDisplay'
 import { useSandboxState } from '../hooks/useSandboxState'
@@ -20,7 +21,8 @@ export default function Sandbox() {
     updateGameMode,
     updateFlowStep,
     updateFlowStepSettings,
-    updatePersonalitySettings,
+    // updatePersonalitySettings, // Temporarily disabled
+    updateSelectedPersonality,
     updatePlayers,
     updateInputText,
     updateLastResponse
@@ -58,7 +60,7 @@ export default function Sandbox() {
       <div className="text-center">
         <div className="flex items-center justify-center gap-4 mb-4">
           <h2 className={`text-2xl font-bold ${getTextColorClass('primary')}`}>
-            Welcome to Riley's Sandbox
+            Welcome to {state.selectedPersonality.name}'s Sandbox
           </h2>
           <div className="flex items-center gap-2">
             <span className={`px-2 py-1 ${getBadgeClasses('primary')} text-xs font-medium rounded`}>
@@ -76,8 +78,8 @@ export default function Sandbox() {
         </p>
       </div>
       
-      {/* Top Row - Game Product & Player Configuration */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Top Row - Game Product, Player Configuration & Personality */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className={`${theme.cardBackground} p-4 rounded-xl shadow-lg border border-white/20`}>
           <ProductSelector
             selectedProduct={state.selectedProduct}
@@ -94,14 +96,22 @@ export default function Sandbox() {
             onPlayersChange={updatePlayers}
           />
         </div>
+
+        <div className={`${theme.cardBackground} p-4 rounded-xl shadow-lg border border-white/20`}>
+          <PersonalitySelector
+            selectedPersonality={state.selectedPersonality}
+            onPersonalityChange={updateSelectedPersonality}
+          />
+        </div>
       </div>
 
-      {/* Second Row - Response Length, Flow Step & Personality */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Second Row - Response Length & Flow Step */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className={`${theme.cardBackground} p-6 rounded-xl shadow-lg border border-white/20`}>
           <ResponseLengthSelector
             selectedLength={state.selectedResponseLength}
             onLengthChange={updateResponseLength}
+            selectedPersonality={state.selectedPersonality}
           />
         </div>
 
@@ -112,16 +122,20 @@ export default function Sandbox() {
             flowStepSettings={state.flowStepSettings}
             onFlowStepChange={updateFlowStep}
             onFlowStepSettingsChange={updateFlowStepSettings}
+            selectedPersonality={state.selectedPersonality}
           />
         </div>
 
+        {/* Temporarily hidden - PersonalitySliders can be re-enabled later
         <div className={`${theme.cardBackground} p-4 rounded-xl shadow-lg border border-white/20`}>
           <PersonalitySliders
             settings={state.personalitySettings}
             onSettingsChange={updatePersonalitySettings}
             theme={theme}
+            selectedPersonality={state.selectedPersonality}
           />
         </div>
+        */}
       </div>
 
       {/* Input & Response Row */}
@@ -135,6 +149,7 @@ export default function Sandbox() {
             sandboxState={state}
             onResponseGenerated={updateLastResponse}
             onGeneratingChange={setIsGeneratingResponse}
+            selectedPersonality={state.selectedPersonality}
           />
         </div>
 
@@ -144,6 +159,7 @@ export default function Sandbox() {
             response={state.lastResponse || null}
             isGenerating={isGeneratingResponse}
             onClear={() => updateLastResponse(undefined)}
+            selectedPersonality={state.selectedPersonality}
           />
         </div>
       </div>

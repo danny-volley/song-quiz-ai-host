@@ -1,4 +1,4 @@
-import { ProductType, FlowStep, FlowStepSettings } from '../types'
+import { ProductType, FlowStep, FlowStepSettings, SelectedPersonality } from '../types'
 import { products } from '../data/products'
 import FlowStepSettingsComponent from './FlowStepSettings'
 
@@ -8,6 +8,7 @@ interface FlowStepSelectorProps {
   flowStepSettings: FlowStepSettings
   onFlowStepChange: (stepId: string) => void
   onFlowStepSettingsChange: (settings: FlowStepSettings) => void
+  selectedPersonality?: SelectedPersonality
 }
 
 export default function FlowStepSelector({ 
@@ -15,8 +16,10 @@ export default function FlowStepSelector({
   selectedFlowStep,
   flowStepSettings,
   onFlowStepChange,
-  onFlowStepSettingsChange
+  onFlowStepSettingsChange,
+  selectedPersonality
 }: FlowStepSelectorProps) {
+  const personalityName = selectedPersonality?.name || 'Riley'
   const currentProduct = products.find(p => p.id === selectedProduct)
   const flowSteps: FlowStep[] = currentProduct?.flowSteps || []
 
@@ -47,7 +50,7 @@ export default function FlowStepSelector({
           🎯 Game Flow Step
         </h3>
         <p className="text-sm text-gray-600 mb-4">
-          Choose a specific moment in {currentProduct?.name} for Riley to comment on.
+          Choose a specific moment in {currentProduct?.name} for {personalityName} to comment on.
         </p>
       </div>
       

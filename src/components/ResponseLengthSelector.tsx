@@ -1,12 +1,14 @@
-import { ResponseLength } from '../types'
+import { ResponseLength, SelectedPersonality } from '../types'
 import { responseLengths } from '../data/products'
 
 interface ResponseLengthSelectorProps {
   selectedLength: ResponseLength
   onLengthChange: (length: ResponseLength) => void
+  selectedPersonality?: SelectedPersonality
 }
 
-export default function ResponseLengthSelector({ selectedLength, onLengthChange }: ResponseLengthSelectorProps) {
+export default function ResponseLengthSelector({ selectedLength, onLengthChange, selectedPersonality }: ResponseLengthSelectorProps) {
+  const personalityName = selectedPersonality?.name || 'Riley'
   return (
     <div className="space-y-4">
       <div>
@@ -14,7 +16,7 @@ export default function ResponseLengthSelector({ selectedLength, onLengthChange 
           📏 Response Length
         </h3>
         <p className="text-sm text-gray-600 mb-3">
-          Control how detailed Riley's responses should be.
+          Control how detailed {personalityName}'s responses should be.
         </p>
       </div>
       
