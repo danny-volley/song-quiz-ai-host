@@ -23,6 +23,7 @@ export default function Sandbox() {
     updateFlowStepSettings,
     // updatePersonalitySettings, // Temporarily disabled
     updateSelectedPersonality,
+    updateSelectedVoice,
     updatePlayers,
     updateInputText,
     updateLastResponse
@@ -101,6 +102,8 @@ export default function Sandbox() {
           <PersonalitySelector
             selectedPersonality={state.selectedPersonality}
             onPersonalityChange={updateSelectedPersonality}
+            selectedVoice={state.selectedVoice}
+            onVoiceChange={updateSelectedVoice}
           />
         </div>
       </div>
@@ -160,6 +163,7 @@ export default function Sandbox() {
             isGenerating={isGeneratingResponse}
             onClear={() => updateLastResponse(undefined)}
             selectedPersonality={state.selectedPersonality}
+            selectedVoice={state.selectedVoice}
           />
         </div>
       </div>

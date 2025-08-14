@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { ProductType, ResponseLength, SandboxState, FlowStepSettings, GameMode, Player, PersonalitySettings, GeneratedResponse, SelectedPersonality } from '../types'
+import { ProductType, ResponseLength, SandboxState, FlowStepSettings, GameMode, Player, PersonalitySettings, GeneratedResponse, SelectedPersonality, SelectedVoice } from '../types'
 import { products } from '../data/products'
 import { getDefaultPersonality } from '../data/personalities'
 
@@ -24,6 +24,10 @@ const initialState: SandboxState = {
   selectedPersonality: {
     id: getDefaultPersonality().id,
     name: getDefaultPersonality().name
+  },
+  selectedVoice: {
+    id: 'h2dQOVyUfIDqY2whPOMo', // Default Nayva voice ID
+    name: 'Nayva'
   },
   players: [
     {
@@ -111,6 +115,13 @@ export function useSandboxState() {
     }))
   }, [])
 
+  const updateSelectedVoice = useCallback((voice: SelectedVoice) => {
+    setState(prev => ({
+      ...prev,
+      selectedVoice: voice
+    }))
+  }, [])
+
   const updateLastResponse = useCallback((response: GeneratedResponse | undefined) => {
     setState(prev => ({
       ...prev,
@@ -139,6 +150,7 @@ export function useSandboxState() {
     updateFlowStepSettings,
     updatePersonalitySettings,
     updateSelectedPersonality,
+    updateSelectedVoice,
     updatePlayers,
     updateInputText,
     updateLastResponse,

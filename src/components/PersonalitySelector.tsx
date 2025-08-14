@@ -1,13 +1,16 @@
 import { useState } from 'react'
-import { SelectedPersonality } from '../types'
+import { SelectedPersonality, SelectedVoice } from '../types'
 import { personalities } from '../data/personalities'
+import { defaultVoices } from '../data/voices'
 
 interface PersonalitySelectorProps {
   selectedPersonality: SelectedPersonality
   onPersonalityChange: (personality: SelectedPersonality) => void
+  selectedVoice: SelectedVoice
+  onVoiceChange: (voice: SelectedVoice) => void
 }
 
-export default function PersonalitySelector({ selectedPersonality, onPersonalityChange }: PersonalitySelectorProps) {
+export default function PersonalitySelector({ selectedPersonality, onPersonalityChange, selectedVoice, onVoiceChange }: PersonalitySelectorProps) {
   const [isDescriptionOpen, setIsDescriptionOpen] = useState(false)
   const selectedPersonalityInfo = personalities.find(p => p.id === selectedPersonality.id)
   
@@ -17,27 +20,53 @@ export default function PersonalitySelector({ selectedPersonality, onPersonality
         🎭 AI Host Personality
       </h3>
       
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Host Character</label>
-        <select
-          value={selectedPersonality.id}
-          onChange={(e) => {
-            const personality = personalities.find(p => p.id === e.target.value)
-            if (personality) {
-              onPersonalityChange({
-                id: personality.id,
-                name: personality.name
-              })
-            }
-          }}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          {personalities.map((personality) => (
-            <option key={personality.id} value={personality.id}>
-              {personality.avatar && `${personality.avatar} `}{personality.displayName}
-            </option>
-          ))}
-        </select>
+      {/* Inline Host Character and Voice Selection */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Host Character</label>
+          <select
+            value={selectedPersonality.id}
+            onChange={(e) => {
+              const personality = personalities.find(p => p.id === e.target.value)
+              if (personality) {
+                onPersonalityChange({
+                  id: personality.id,
+                  name: personality.name
+                })
+              }
+            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            {personalities.map((personality) => (
+              <option key={personality.id} value={personality.id}>
+                {personality.avatar && `${personality.avatar} `}{personality.displayName}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Voice Selection</label>
+          <select
+            value={selectedVoice.id}
+            onChange={(e) => {
+              const voice = defaultVoices.find(v => v.id === e.target.value)
+              if (voice) {
+                onVoiceChange({
+                  id: voice.id,
+                  name: voice.name
+                })
+              }
+            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            {defaultVoices.map((voice) => (
+              <option key={voice.id} value={voice.id}>
+                {voice.name} ({voice.gender})
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Collapsible Personality Description */}

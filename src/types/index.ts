@@ -21,6 +21,11 @@ export interface SelectedPersonality {
   name: string
 }
 
+export interface SelectedVoice {
+  id: string
+  name: string
+}
+
 export interface ResponseLengthInfo {
   id: ResponseLength
   label: string
@@ -75,6 +80,7 @@ export interface SandboxState {
   flowStepSettings: FlowStepSettings
   personalitySettings: PersonalitySettings
   selectedPersonality: SelectedPersonality
+  selectedVoice: SelectedVoice
   players: Player[]
   inputText: string
   lastResponse?: GeneratedResponse

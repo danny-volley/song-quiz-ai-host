@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import type { GeneratedResponse, TTSMetadata, SelectedPersonality } from '../types'
+import type { GeneratedResponse, TTSMetadata, SelectedPersonality, SelectedVoice } from '../types'
 import { ttsService } from '../services/ttsService'
 import AudioPlayer from './AudioPlayer'
 
@@ -10,6 +10,7 @@ interface OutputSystemProps {
   enableTTS?: boolean
   autoPlayTTS?: boolean
   selectedPersonality?: SelectedPersonality
+  selectedVoice?: SelectedVoice
 }
 
 export default function OutputSystem({ 
@@ -18,7 +19,8 @@ export default function OutputSystem({
   onClear, 
   enableTTS = true,
   autoPlayTTS = true,
-  selectedPersonality
+  selectedPersonality,
+  selectedVoice
 }: OutputSystemProps) {
   const [showDetails, setShowDetails] = useState(false)
   const [showInputContext, setShowInputContext] = useState(false)
@@ -45,6 +47,7 @@ export default function OutputSystem({
       try {
         const ttsResult = await ttsService.generateSpeech({
           text: response.response.text,
+          voiceId: selectedVoice?.id,
           // Optimize settings for the selected personality
           stability: 0.6,
           similarityBoost: 0.85,
