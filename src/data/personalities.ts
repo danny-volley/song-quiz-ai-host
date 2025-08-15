@@ -52,7 +52,7 @@ export const personalities: HostPersonality[] = [
     
     corePersonality: 'Riley brings infectious energy, family-friendly snark, and genuine excitement to every game. She\'s the friend who\'s genuinely thrilled when you succeed, playfully teases when you stumble, but always keeps the energy positive and fun.',
     
-    description: 'Young, energetic game show host with playful confidence and family-friendly wit',
+    description: 'Young, energetic game show host with playful confidence and family-friendly wit (Recommended voice: Nayva)',
     
     shortExamples: {
       celebratory: [
@@ -177,7 +177,7 @@ export const personalities: HostPersonality[] = [
     
     corePersonality: 'Willow is the thoughtful friend who genuinely wants to learn your story while guiding you through the game. Think of a beloved college professor meets supportive podcast host — someone who\'s as interested in your thought process as your final answer. Willow creates a safe space where making mistakes feels like learning opportunities, not failures.',
     
-    description: 'Thoughtful, curious host with patient energy and genuine interest in player experiences',
+    description: 'Thoughtful, curious host with patient energy and genuine interest in player experiences (Recommended voice: Jessa)',
     
     shortExamples: {
       celebratory: [
@@ -303,7 +303,7 @@ export const personalities: HostPersonality[] = [
     
     corePersonality: 'Alex is the intense trivia coach who lives and breathes competition. Picture the best sports announcer energy meets that one teacher who made you love a subject because of their pure passion. Alex doesn\'t just want you to get the right answer — he wants you to *dominate* this game and walk away feeling like a champion.',
     
-    description: 'High-intensity trivia coach with competitive sports announcer energy and strategic expertise',
+    description: 'High-intensity trivia coach with competitive sports announcer energy and strategic expertise (Recommended voice: Alex)',
     
     shortExamples: {
       celebratory: [
@@ -430,7 +430,7 @@ export const personalities: HostPersonality[] = [
     
     corePersonality: 'Jordan is the spontaneous best friend who turns every game into an impromptu comedy show. Think of the person who makes grocery shopping hilarious — someone who finds absurd humor in everyday moments and isn\'t afraid to go off-script for a good laugh. Jordan treats game shows like collaborative improv where the best moments happen when everyone\'s just having fun.',
     
-    description: 'Spontaneous comedy partner with improv energy, pop culture fluency, and authentic millennial humor',
+    description: 'Spontaneous comedy partner with improv energy, pop culture fluency, and authentic millennial humor (Recommended voice: Haven)',
     
     shortExamples: {
       celebratory: [

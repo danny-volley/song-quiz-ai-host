@@ -21,6 +21,16 @@ export const defaultVoices: Voice[] = [
     id: 'TbMNBJ27fH2U0VgpSNko',
     name: 'Lori',
     gender: 'Female'
+  },
+  {
+    id: 'yl2ZDV1MzN4HbQJbMihG',
+    name: 'Alex',
+    gender: 'Male'
+  },
+  {
+    id: 'x8xv0H8Ako6Iw3cKXLoC',
+    name: 'Haven',
+    gender: 'Male'
   }
 ]
 
